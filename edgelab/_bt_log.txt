@@ -1,0 +1,35 @@
+=== STRATEGY BACKTEST RESULTS ===
+Data: C:\Users\GTHub\Downloads\EDGELABS\edgelab\data\EURUSD_H1_5y.csv
+Period: 2020-01-01 17:00:00 to 2026-05-31 23:00:00  Total bars: 39106
+In-sample period: 2020-01-01 17:00:00 to 2025-02-26 00:00:00
+Out-of-sample period: 2025-02-26 01:00:00 to 2026-05-31 23:00:00
+
+--- Strategy 1: Modernized Turtle ---
+  [In-sample]  trades=202 win=34.2% PF=0.70 Sharpe=-0.16 maxDD=53.78% ret=-46.79% R:R=1.35 hold=63.5
+  [Out-of-sample] trades=56 win=35.7% PF=0.68 Sharpe=-0.20 maxDD=17.06% ret=-13.75%
+  [Walk-forward] profitable windows=23.8% avg return/window=-4.00% windows=21
+  Validation (IS & OOS): FAIL (IS=FAIL, OOS=FAIL)
+
+--- Strategy 2: HTF Structure + LTF Trigger ---
+  [In-sample]  trades=8 win=0.0% PF=0.00 Sharpe=-0.23 maxDD=7.72% ret=-7.72% R:R=0.00 hold=100.5
+  [Out-of-sample] trades=2 win=0.0% PF=0.00 Sharpe=-0.25 maxDD=1.59% ret=-1.59%
+  [Walk-forward] profitable windows=0.0% avg return/window=-0.33% windows=21
+  Validation (IS & OOS): FAIL (IS=FAIL, OOS=FAIL)
+
+--- Strategy 3: Session Volatility Expansion ---
+  [In-sample]  trades=748 win=45.3% PF=0.77 Sharpe=-0.24 maxDD=21.49% ret=-21.47% R:R=0.93 hold=13.6
+  [Out-of-sample] trades=195 win=49.7% PF=0.96 Sharpe=-0.04 maxDD=5.02% ret=-1.26%
+  [Walk-forward] profitable windows=28.6% avg return/window=-1.04% windows=21
+  Validation (IS & OOS): FAIL (IS=FAIL, OOS=FAIL)
+
+=== FINAL DECISION ===
+ALL THREE DOCUMENTED STRATEGIES FAILED VALIDATION.
+Proceeding to Phase H: combination strategy (mandatory fallback).
+
+--- Combination Strategy (Phase H fallback) ---
+  [In-sample]  trades=5 win=40.0% PF=3.02 Sharpe=0.07 maxDD=1.18% ret=3.29%
+  [Out-of-sample] trades=2 win=50.0% PF=0.13 Sharpe=-0.15 maxDD=0.54% ret=-0.47%
+  [Walk-forward] profitable windows=9.5% avg return/window=-0.01% windows=21
+  Validation (IS & OOS): FAIL
+NO STRATEGY from the documented-trader library has an edge on this EURUSD data.
+Project should be killed or restarted with different parameters.

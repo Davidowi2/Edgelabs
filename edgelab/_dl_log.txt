@@ -1,0 +1,14 @@
+=== EURUSD H1 download summary ===
+Rows (H1 bars): 39106
+First bar: 2020-01-01 17:00:00
+Last bar:  2026-05-31 23:00:00
+Span (days): 2342  (~6.41 years)
+Expected hourly slots: 56215
+Actual hourly bars:    55831
+Gap hours (dropped, no M1 data): 16725
+NaN rows after drop: 0
+Min price: 0.95357  Max price: 1.23494
+Download failures (2):
+  - 2026-06: HTTPSConnectionPool(host='www.histdata.com', port=443): Max retries exceeded with url: /get.php (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1006)')))
+  - 2026-07: There is no token. Please make sure your year/month/pair is correct.Example is year=2016, month=7, pair=eurgbp
+Wrote C:\Users\GTHub\Downloads\EDGELABS\edgelab\data\EURUSD_H1_5y.csv (2132821 bytes)

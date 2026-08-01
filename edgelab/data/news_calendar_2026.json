@@ -1,0 +1,1466 @@
+[
+  {
+    "id": "us_nfp_2026_01",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-01-02T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_02",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-02-06T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_03",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-03-06T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_04",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-04-03T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_05",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-05-01T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_06",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-06-05T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_07",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-07-03T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_08",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-08-07T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_09",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-09-04T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_10",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-10-02T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_11",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-11-06T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_nfp_2026_12",
+    "name": "Non-Farm Payrolls",
+    "currency": "USD",
+    "datetime_utc": "2026-12-04T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_01",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-01-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_02",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-02-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_03",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-03-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_04",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-04-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_05",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-05-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_06",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-06-12T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_07",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-07-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_08",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-08-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_09",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-09-11T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_10",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-10-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_11",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-11-13T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_cpi_2026_12",
+    "name": "CPI",
+    "currency": "USD",
+    "datetime_utc": "2026-12-11T11:30:00+00:00",
+    "impact": "high",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_01",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-01-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_02",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-02-13T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_03",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-03-13T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_04",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-04-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_05",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-05-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_06",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-06-12T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_07",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-07-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_08",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-08-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_09",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-09-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_10",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-10-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_11",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-11-13T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_ppi_2026_12",
+    "name": "PPI",
+    "currency": "USD",
+    "datetime_utc": "2026-12-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "bls.gov"
+  },
+  {
+    "id": "us_retail_2026_01",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-01-15T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_02",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-02-13T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_03",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-03-13T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_04",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-04-15T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_05",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-05-15T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_06",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-06-15T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_07",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-07-15T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_08",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-08-14T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_09",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-09-15T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_10",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-10-15T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_11",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-11-13T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_retail_2026_12",
+    "name": "Retail Sales",
+    "currency": "USD",
+    "datetime_utc": "2026-12-15T11:30:00+00:00",
+    "impact": "medium",
+    "source": "census.gov"
+  },
+  {
+    "id": "us_gdp_2026_01",
+    "name": "GDP",
+    "currency": "USD",
+    "datetime_utc": "2026-01-29T11:30:00+00:00",
+    "impact": "high",
+    "source": "bea.gov"
+  },
+  {
+    "id": "us_gdp_2026_04",
+    "name": "GDP",
+    "currency": "USD",
+    "datetime_utc": "2026-04-29T11:30:00+00:00",
+    "impact": "high",
+    "source": "bea.gov"
+  },
+  {
+    "id": "us_gdp_2026_07",
+    "name": "GDP",
+    "currency": "USD",
+    "datetime_utc": "2026-07-29T11:30:00+00:00",
+    "impact": "high",
+    "source": "bea.gov"
+  },
+  {
+    "id": "us_gdp_2026_10",
+    "name": "GDP",
+    "currency": "USD",
+    "datetime_utc": "2026-10-29T11:30:00+00:00",
+    "impact": "high",
+    "source": "bea.gov"
+  },
+  {
+    "id": "us_fomc_2026-01-28",
+    "name": "FOMC Rate Decision",
+    "currency": "USD",
+    "datetime_utc": "2026-01-28T17:00:00+00:00",
+    "impact": "high",
+    "source": "federalreserve.gov"
+  },
+  {
+    "id": "us_fomc_2026-03-18",
+    "name": "FOMC Rate Decision",
+    "currency": "USD",
+    "datetime_utc": "2026-03-18T17:00:00+00:00",
+    "impact": "high",
+    "source": "federalreserve.gov"
+  },
+  {
+    "id": "us_fomc_2026-04-29",
+    "name": "FOMC Rate Decision",
+    "currency": "USD",
+    "datetime_utc": "2026-04-29T17:00:00+00:00",
+    "impact": "high",
+    "source": "federalreserve.gov"
+  },
+  {
+    "id": "us_fomc_2026-06-17",
+    "name": "FOMC Rate Decision",
+    "currency": "USD",
+    "datetime_utc": "2026-06-17T17:00:00+00:00",
+    "impact": "high",
+    "source": "federalreserve.gov"
+  },
+  {
+    "id": "us_fomc_2026-07-29",
+    "name": "FOMC Rate Decision",
+    "currency": "USD",
+    "datetime_utc": "2026-07-29T17:00:00+00:00",
+    "impact": "high",
+    "source": "federalreserve.gov"
+  },
+  {
+    "id": "us_fomc_2026-09-16",
+    "name": "FOMC Rate Decision",
+    "currency": "USD",
+    "datetime_utc": "2026-09-16T17:00:00+00:00",
+    "impact": "high",
+    "source": "federalreserve.gov"
+  },
+  {
+    "id": "us_fomc_2026-10-28",
+    "name": "FOMC Rate Decision",
+    "currency": "USD",
+    "datetime_utc": "2026-10-28T17:00:00+00:00",
+    "impact": "high",
+    "source": "federalreserve.gov"
+  },
+  {
+    "id": "us_fomc_2026-12-16",
+    "name": "FOMC Rate Decision",
+    "currency": "USD",
+    "datetime_utc": "2026-12-16T17:00:00+00:00",
+    "impact": "high",
+    "source": "federalreserve.gov"
+  },
+  {
+    "id": "eu_ecb_2026-01-22",
+    "name": "ECB Rate Decision",
+    "currency": "EUR",
+    "datetime_utc": "2026-01-22T11:15:00+00:00",
+    "impact": "high",
+    "source": "ecb.europa.eu"
+  },
+  {
+    "id": "eu_ecb_2026-03-12",
+    "name": "ECB Rate Decision",
+    "currency": "EUR",
+    "datetime_utc": "2026-03-12T11:15:00+00:00",
+    "impact": "high",
+    "source": "ecb.europa.eu"
+  },
+  {
+    "id": "eu_ecb_2026-04-23",
+    "name": "ECB Rate Decision",
+    "currency": "EUR",
+    "datetime_utc": "2026-04-23T11:15:00+00:00",
+    "impact": "high",
+    "source": "ecb.europa.eu"
+  },
+  {
+    "id": "eu_ecb_2026-06-04",
+    "name": "ECB Rate Decision",
+    "currency": "EUR",
+    "datetime_utc": "2026-06-04T11:15:00+00:00",
+    "impact": "high",
+    "source": "ecb.europa.eu"
+  },
+  {
+    "id": "eu_ecb_2026-07-16",
+    "name": "ECB Rate Decision",
+    "currency": "EUR",
+    "datetime_utc": "2026-07-16T11:15:00+00:00",
+    "impact": "high",
+    "source": "ecb.europa.eu"
+  },
+  {
+    "id": "eu_ecb_2026-09-10",
+    "name": "ECB Rate Decision",
+    "currency": "EUR",
+    "datetime_utc": "2026-09-10T11:15:00+00:00",
+    "impact": "high",
+    "source": "ecb.europa.eu"
+  },
+  {
+    "id": "eu_ecb_2026-10-22",
+    "name": "ECB Rate Decision",
+    "currency": "EUR",
+    "datetime_utc": "2026-10-22T11:15:00+00:00",
+    "impact": "high",
+    "source": "ecb.europa.eu"
+  },
+  {
+    "id": "eu_ecb_2026-12-10",
+    "name": "ECB Rate Decision",
+    "currency": "EUR",
+    "datetime_utc": "2026-12-10T11:15:00+00:00",
+    "impact": "high",
+    "source": "ecb.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_01",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-01-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_02",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-02-27T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_03",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-03-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_04",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-04-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_05",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-05-29T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_06",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-06-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_07",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-07-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_08",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-08-28T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_09",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-09-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_10",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-10-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_11",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-11-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_cpi_2026_12",
+    "name": "EU CPI",
+    "currency": "EUR",
+    "datetime_utc": "2026-12-30T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_gdp_2026_02",
+    "name": "EU GDP",
+    "currency": "EUR",
+    "datetime_utc": "2026-02-13T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_gdp_2026_05",
+    "name": "EU GDP",
+    "currency": "EUR",
+    "datetime_utc": "2026-05-15T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_gdp_2026_08",
+    "name": "EU GDP",
+    "currency": "EUR",
+    "datetime_utc": "2026-08-14T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "eu_gdp_2026_11",
+    "name": "EU GDP",
+    "currency": "EUR",
+    "datetime_utc": "2026-11-13T09:00:00+00:00",
+    "impact": "medium",
+    "source": "eurostat.ec.europa.eu"
+  },
+  {
+    "id": "uk_boe_2026-02-05",
+    "name": "BOE Rate Decision",
+    "currency": "GBP",
+    "datetime_utc": "2026-02-05T10:00:00+00:00",
+    "impact": "high",
+    "source": "bankofengland.co.uk"
+  },
+  {
+    "id": "uk_boe_2026-03-19",
+    "name": "BOE Rate Decision",
+    "currency": "GBP",
+    "datetime_utc": "2026-03-19T10:00:00+00:00",
+    "impact": "high",
+    "source": "bankofengland.co.uk"
+  },
+  {
+    "id": "uk_boe_2026-05-07",
+    "name": "BOE Rate Decision",
+    "currency": "GBP",
+    "datetime_utc": "2026-05-07T10:00:00+00:00",
+    "impact": "high",
+    "source": "bankofengland.co.uk"
+  },
+  {
+    "id": "uk_boe_2026-06-18",
+    "name": "BOE Rate Decision",
+    "currency": "GBP",
+    "datetime_utc": "2026-06-18T10:00:00+00:00",
+    "impact": "high",
+    "source": "bankofengland.co.uk"
+  },
+  {
+    "id": "uk_boe_2026-08-06",
+    "name": "BOE Rate Decision",
+    "currency": "GBP",
+    "datetime_utc": "2026-08-06T10:00:00+00:00",
+    "impact": "high",
+    "source": "bankofengland.co.uk"
+  },
+  {
+    "id": "uk_boe_2026-09-17",
+    "name": "BOE Rate Decision",
+    "currency": "GBP",
+    "datetime_utc": "2026-09-17T10:00:00+00:00",
+    "impact": "high",
+    "source": "bankofengland.co.uk"
+  },
+  {
+    "id": "uk_boe_2026-11-05",
+    "name": "BOE Rate Decision",
+    "currency": "GBP",
+    "datetime_utc": "2026-11-05T10:00:00+00:00",
+    "impact": "high",
+    "source": "bankofengland.co.uk"
+  },
+  {
+    "id": "uk_boe_2026-12-17",
+    "name": "BOE Rate Decision",
+    "currency": "GBP",
+    "datetime_utc": "2026-12-17T10:00:00+00:00",
+    "impact": "high",
+    "source": "bankofengland.co.uk"
+  },
+  {
+    "id": "uk_cpi_2026_01",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-01-16T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_02",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-02-18T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_03",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-03-18T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_04",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-04-17T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_05",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-05-18T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_06",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-06-18T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_07",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-07-17T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_08",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-08-18T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_09",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-09-18T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_10",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-10-16T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_11",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-11-18T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_cpi_2026_12",
+    "name": "UK CPI",
+    "currency": "GBP",
+    "datetime_utc": "2026-12-18T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_gdp_2026_02",
+    "name": "UK GDP",
+    "currency": "GBP",
+    "datetime_utc": "2026-02-12T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_gdp_2026_05",
+    "name": "UK GDP",
+    "currency": "GBP",
+    "datetime_utc": "2026-05-12T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_gdp_2026_08",
+    "name": "UK GDP",
+    "currency": "GBP",
+    "datetime_utc": "2026-08-12T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "uk_gdp_2026_11",
+    "name": "UK GDP",
+    "currency": "GBP",
+    "datetime_utc": "2026-11-12T06:00:00+00:00",
+    "impact": "medium",
+    "source": "ons.gov.uk"
+  },
+  {
+    "id": "jp_boj_2026-01-20",
+    "name": "BOJ Rate Decision",
+    "currency": "JPY",
+    "datetime_utc": "2026-01-20T02:00:00+00:00",
+    "impact": "high",
+    "source": "boj.or.jp"
+  },
+  {
+    "id": "jp_boj_2026-03-19",
+    "name": "BOJ Rate Decision",
+    "currency": "JPY",
+    "datetime_utc": "2026-03-19T02:00:00+00:00",
+    "impact": "high",
+    "source": "boj.or.jp"
+  },
+  {
+    "id": "jp_boj_2026-04-30",
+    "name": "BOJ Rate Decision",
+    "currency": "JPY",
+    "datetime_utc": "2026-04-30T02:00:00+00:00",
+    "impact": "high",
+    "source": "boj.or.jp"
+  },
+  {
+    "id": "jp_boj_2026-06-17",
+    "name": "BOJ Rate Decision",
+    "currency": "JPY",
+    "datetime_utc": "2026-06-17T02:00:00+00:00",
+    "impact": "high",
+    "source": "boj.or.jp"
+  },
+  {
+    "id": "jp_boj_2026-07-30",
+    "name": "BOJ Rate Decision",
+    "currency": "JPY",
+    "datetime_utc": "2026-07-30T02:00:00+00:00",
+    "impact": "high",
+    "source": "boj.or.jp"
+  },
+  {
+    "id": "jp_boj_2026-09-21",
+    "name": "BOJ Rate Decision",
+    "currency": "JPY",
+    "datetime_utc": "2026-09-21T02:00:00+00:00",
+    "impact": "high",
+    "source": "boj.or.jp"
+  },
+  {
+    "id": "jp_boj_2026-10-29",
+    "name": "BOJ Rate Decision",
+    "currency": "JPY",
+    "datetime_utc": "2026-10-29T02:00:00+00:00",
+    "impact": "high",
+    "source": "boj.or.jp"
+  },
+  {
+    "id": "jp_boj_2026-12-18",
+    "name": "BOJ Rate Decision",
+    "currency": "JPY",
+    "datetime_utc": "2026-12-18T02:00:00+00:00",
+    "impact": "high",
+    "source": "boj.or.jp"
+  },
+  {
+    "id": "jp_cpi_2026_01",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-01-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_02",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-02-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_03",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-03-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_04",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-04-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_05",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-05-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_06",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-06-19T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_07",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-07-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_08",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-08-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_09",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-09-18T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_10",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-10-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_11",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-11-20T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "jp_cpi_2026_12",
+    "name": "JP CPI",
+    "currency": "JPY",
+    "datetime_utc": "2026-12-18T22:30:00+00:00",
+    "impact": "low",
+    "source": "stat.go.jp"
+  },
+  {
+    "id": "au_rba_2026-02-03",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-02-02T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-03-03",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-03-02T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-04-07",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-04-06T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-05-05",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-05-04T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-06-02",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-06-01T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-07-07",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-07-06T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-08-04",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-08-03T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-09-01",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-08-31T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-10-06",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-10-05T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-11-03",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-11-02T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_rba_2026-12-01",
+    "name": "RBA Rate Decision",
+    "currency": "AUD",
+    "datetime_utc": "2026-11-30T23:30:00+00:00",
+    "impact": "high",
+    "source": "rba.gov.au"
+  },
+  {
+    "id": "au_emp_2026_01",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-01-01T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_02",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-02-05T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_03",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-03-05T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_04",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-04-02T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_05",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-05-07T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_06",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-06-04T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_07",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-07-02T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_08",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-08-06T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_09",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-09-03T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_10",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-10-01T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_11",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-11-05T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "au_emp_2026_12",
+    "name": "AU Employment",
+    "currency": "AUD",
+    "datetime_utc": "2026-12-03T22:30:00+00:00",
+    "impact": "medium",
+    "source": "abs.gov.au"
+  },
+  {
+    "id": "ca_boc_2026-01-28",
+    "name": "BOC Rate Decision",
+    "currency": "CAD",
+    "datetime_utc": "2026-01-28T13:00:00+00:00",
+    "impact": "high",
+    "source": "bankofcanada.ca"
+  },
+  {
+    "id": "ca_boc_2026-03-04",
+    "name": "BOC Rate Decision",
+    "currency": "CAD",
+    "datetime_utc": "2026-03-04T13:00:00+00:00",
+    "impact": "high",
+    "source": "bankofcanada.ca"
+  },
+  {
+    "id": "ca_boc_2026-04-15",
+    "name": "BOC Rate Decision",
+    "currency": "CAD",
+    "datetime_utc": "2026-04-15T13:00:00+00:00",
+    "impact": "high",
+    "source": "bankofcanada.ca"
+  },
+  {
+    "id": "ca_boc_2026-06-03",
+    "name": "BOC Rate Decision",
+    "currency": "CAD",
+    "datetime_utc": "2026-06-03T13:00:00+00:00",
+    "impact": "high",
+    "source": "bankofcanada.ca"
+  },
+  {
+    "id": "ca_boc_2026-07-15",
+    "name": "BOC Rate Decision",
+    "currency": "CAD",
+    "datetime_utc": "2026-07-15T13:00:00+00:00",
+    "impact": "high",
+    "source": "bankofcanada.ca"
+  },
+  {
+    "id": "ca_boc_2026-09-09",
+    "name": "BOC Rate Decision",
+    "currency": "CAD",
+    "datetime_utc": "2026-09-09T13:00:00+00:00",
+    "impact": "high",
+    "source": "bankofcanada.ca"
+  },
+  {
+    "id": "ca_boc_2026-10-21",
+    "name": "BOC Rate Decision",
+    "currency": "CAD",
+    "datetime_utc": "2026-10-21T13:00:00+00:00",
+    "impact": "high",
+    "source": "bankofcanada.ca"
+  },
+  {
+    "id": "ca_boc_2026-12-09",
+    "name": "BOC Rate Decision",
+    "currency": "CAD",
+    "datetime_utc": "2026-12-09T13:00:00+00:00",
+    "impact": "high",
+    "source": "bankofcanada.ca"
+  },
+  {
+    "id": "ca_cpi_2026_01",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-01-16T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_02",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-02-18T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_03",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-03-18T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_04",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-04-17T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_05",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-05-18T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_06",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-06-18T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_07",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-07-17T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_08",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-08-18T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_09",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-09-18T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_10",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-10-16T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_11",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-11-18T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_cpi_2026_12",
+    "name": "CA CPI",
+    "currency": "CAD",
+    "datetime_utc": "2026-12-18T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_01",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-01-05T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_02",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-02-05T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_03",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-03-05T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_04",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-04-03T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_05",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-05-05T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_06",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-06-05T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_07",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-07-03T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_08",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-08-05T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_09",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-09-04T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_10",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-10-05T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_11",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-11-05T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  },
+  {
+    "id": "ca_emp_2026_12",
+    "name": "CA Employment",
+    "currency": "CAD",
+    "datetime_utc": "2026-12-04T11:30:00+00:00",
+    "impact": "medium",
+    "source": "statcan.gc.ca"
+  }
+]
