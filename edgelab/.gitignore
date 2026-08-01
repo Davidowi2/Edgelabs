@@ -54,6 +54,12 @@ edgelab/logs/
 *.sqlite
 broker_credentials.yaml
 
+# Data files - too large for git
+_dl_tmp/
+_hdtest/
+*.zip
+data/EURUSD_*.csv
+
 # OS
 .DS_Store
 Thumbs.db
