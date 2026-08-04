@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>Edgelabs Monitor</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --line:#30363d;
+    --txt:#c9d1d9; --muted:#8b949e; --green:#3fb950; --amber:#d29922;
+    --red:#f85149; --blue:#58a6ff; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:560px;margin:0 auto;padding:14px 14px 40px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
+  .title{font-size:18px;font-weight:700;letter-spacing:.2px;}
+  .title small{display:block;font-size:11px;color:var(--muted);font-weight:500;}
+  .badge{font-size:10px;font-weight:700;letter-spacing:.6px;padding:5px 9px;border-radius:999px;
+    background:rgba(63,185,80,.12);color:var(--green);border:1px solid rgba(63,185,80,.35);white-space:nowrap;}
+  .updated{font-size:11px;color:var(--muted);margin-bottom:14px;text-align:right;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px;margin-bottom:12px;}
+  .card h2{margin:0 0 10px;font-size:13px;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.8px;display:flex;justify-content:space-between;align-items:center;}
+  .pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.4px;}
+  .pill.green{background:rgba(63,185,80,.15);color:var(--green);}
+  .pill.amber{background:rgba(210,153,34,.15);color:var(--amber);}
+  .pill.red{background:rgba(248,81,73,.15);color:var(--red);}
+  .pill.blue{background:rgba(88,166,255,.15);color:var(--blue);}
+  /* risk gauge */
+  .gauge{height:10px;border-radius:999px;background:var(--panel2);overflow:hidden;border:1px solid var(--line);}
+  .gauge > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--amber));}
+  .gauge-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;}
+  .row{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line);font-size:13px;}
+  .row:first-of-type{border-top:none;}
+  .row .k{color:var(--muted);}
+  .row .v{font-weight:600;}
+  .sym{font-weight:700;}
+  .pos{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13px;}
+  .pos:first-of-type{border-top:none;}
+  .long{color:var(--green);} .short{color:var(--red);}
+  .muted{color:var(--muted);font-size:12px;}
+  button{width:100%;margin-top:10px;padding:11px;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;}
+  button:active{transform:translateY(1px);}
+  .status{font-size:12px;margin-top:8px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:380px){.grid2{grid-template-columns:1fr;}}
+  .empty{color:var(--muted);font-size:12px;padding:8px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">Edgelabs Monitor<small>autonomous trading agent</small></div>
+    <div class="badge">DEMO · READ-ONLY</div>
+  </header>
+  <div class="updated" id="updated">—</div>
+
+  <!-- Risk / combined book -->
+  <div class="card">
+    <h2>Combined Book <span class="pill blue" id="dd-pill">DD 4% cap</span></h2>
+    <div class="gauge"><i id="dd-bar" style="width:0%"></i></div>
+    <div class="gauge-label"><span id="dd-used">used 0.0%</span><span>budget 4.0%</span></div>
+    <div class="row"><span class="k">Grader verdict</span><span class="v" id="verdict">—</span></div>
+    <div class="row"><span class="k">Forward return</span><span class="v" id="fret">—</span></div>
+    <div class="row"><span class="k">Journal signals</span><span class="v" id="jrows">—</span></div>
+  </div>
+
+  <!-- Sleeves -->
+  <div class="grid2">
+    <div class="card">
+      <h2>H5 Equity <span class="pill green">PROVEN</span></h2>
+      <div id="h5" class="muted">loading…</div>
+    </div>
+    <div class="card">
+      <h2>H6 Crypto <span class="pill amber">RISK-CAPPED</span></h2>
+      <div id="h6" class="muted">loading…</div>
+    </div>
+  </div>
+
+  <!-- Forward journal -->
+  <div class="card">
+    <h2>Forward Journal</h2>
+    <div id="journal"><div class="empty">no signals yet</div></div>
+  </div>
+
+  <!-- TradeLocker demo -->
+  <div class="card">
+    <h2>TradeLocker Demo <span class="pill blue" id="tl-pill">disconnected</span></h2>
+    <div class="row"><span class="k">Balance</span><span class="v" id="tl-bal">—</span></div>
+    <div class="row"><span class="k">Equity</span><span class="v" id="tl-eq">—</span></div>
+    <div id="tl-positions"><div class="empty">not connected</div></div>
+    <button id="tl-btn">Connect demo account</button>
+    <div class="status muted" id="tl-status">read-only · credentials from session env</div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function pill(cls, txt){ return `<span class="pill ${cls}">${txt}</span>`; }
+
+async function loadState(){
+  try{
+    const r = await fetch('/api/state'); const s = await r.json();
+    $('updated').textContent = 'updated ' + new Date(s.updated).toLocaleTimeString();
+    $('jrows').textContent = s.journal_rows ?? 0;
+    // grader
+    if(s.grader){
+      const v = s.grader.verdict;
+      const cls = v==='CONSISTENT'?'green':(v==='BREACH'?'red':'amber');
+      $('verdict').innerHTML = pill(cls, v);
+      $('fret').textContent = (s.grader.return_pct>=0?'+':'') + s.grader.return_pct.toFixed(2) + '%';
+      const dd = Math.min(s.grader.max_dd_pct, 100);
+      $('dd-bar').style.width = Math.min(100, dd / (s.dd_budget_pct||4)*100).toFixed(1) + '%';
+      $('dd-used').textContent = 'used ' + dd.toFixed(2) + '%';
+    }
+    // sleeves
+    renderSleeve('h5', s.sleeves && s.sleeves['H5_equity']);
+    renderSleeve('h6', s.sleeves && s.sleeves['H6_crypto']);
+    // journal
+    renderJournal(s.sleeves);
+  }catch(e){ $('updated').textContent = 'error: ' + e.message; }
+}
+
+function renderSleeve(id, list){
+  const el = $(id);
+  if(!list || !list.length){ el.innerHTML = '<div class="empty">flat</div>'; return; }
+  el.innerHTML = list.map(p=>{
+    const d = p.direction==='LONG'?'long':'short';
+    return `<div class="pos"><span class="sym">${p.symbol}</span>
+      <span><span class="${d}">${p.direction}</span> · w ${p.weight.toFixed(3)}</span></div>`;
+  }).join('');
+}
+
+function renderJournal(sleeves){
+  const all = [];
+  for(const k in sleeves){ for(const p of sleeves[k]) all.push({...p, sleeve:k}); }
+  const el = $('journal');
+  if(!all.length){ el.innerHTML = '<div class="empty">no signals yet</div>'; return; }
+  el.innerHTML = all.slice(-8).reverse().map(p=>{
+    return `<div class="pos"><span class="sym">${p.symbol}</span>
+      <span class="muted">${p.sleeve.replace('_',' ')} · ${p.direction}</span></div>`;
+  }).join('');
+}
+
+async function connectDemo(){
+  $('tl-btn').disabled = true; $('tl-status').textContent = 'connecting (read-only)…';
+  try{
+    const r = await fetch('/api/demo'); const d = await r.json();
+    if(d.connected){
+      $('tl-pill').className = 'pill green'; $('tl-pill').textContent = 'connected';
+      $('tl-bal').textContent = d.balance!=null ? '$'+Number(d.balance).toLocaleString() : '—';
+      $('tl-eq').textContent = d.equity!=null ? '$'+Number(d.equity).toLocaleString() : '—';
+      const ps = d.positions || [];
+      $('tl-positions').innerHTML = ps.length
+        ? ps.map(p=>`<div class="pos"><span class="sym">${p.symbol}</span>
+            <span class="${p.side==='LONG'||p.direction==='LONG'?'long':'short'}">${(p.side||p.direction)||''}</span></div>`).join('')
+        : '<div class="empty">no open positions</div>';
+      $('tl-status').textContent = 'read-only demo snapshot';
+    } else {
+      $('tl-pill').className = 'pill red'; $('tl-pill').textContent = 'refused';
+      $('tl-status').textContent = d.reason || 'not connected';
+      $('tl-positions').innerHTML = '<div class="empty">not connected</div>';
+    }
+  }catch(e){ $('tl-status').textContent = 'error: ' + e.message; }
+  finally{ $('tl-btn').disabled = false; }
+}
+
+$('tl-btn').addEventListener('click', connectDemo);
+loadState();
+setInterval(loadState, 15000);
+</script>
+</body>
+</html>
