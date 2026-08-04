@@ -2,101 +2,177 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="color-scheme" content="dark" />
-<title>Edgelabs Monitor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Edgelabs — Trading Monitor</title>
 <style>
   :root{
-    --bg:#0d1117; --panel:#161b22; --panel2:#1c2230; --line:#30363d;
-    --txt:#c9d1d9; --muted:#8b949e; --green:#3fb950; --amber:#d29922;
-    --red:#f85149; --blue:#58a6ff; --radius:14px;
+    --bg:#f4f6f9; --panel:#ffffff; --panel2:#f8fafc; --line:#e5e9f0;
+    --txt:#1f2937; --muted:#64748b; --green:#15803d; --greenbg:#dcfce7;
+    --amber:#b45309; --amberbg:#fef3c7; --red:#b91c1c; --redbg:#fee2e2;
+    --blue:#1d4ed8; --bluebg:#dbeafe; --radius:10px; --shadow:0 1px 3px rgba(15,23,42,.08);
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:var(--bg);color:var(--txt);
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing:antialiased;}
-  .wrap{max-width:560px;margin:0 auto;padding:14px 14px 40px;}
-  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
-  .title{font-size:18px;font-weight:700;letter-spacing:.2px;}
-  .title small{display:block;font-size:11px;color:var(--muted);font-weight:500;}
-  .badge{font-size:10px;font-weight:700;letter-spacing:.6px;padding:5px 9px;border-radius:999px;
-    background:rgba(63,185,80,.12);color:var(--green);border:1px solid rgba(63,185,80,.35);white-space:nowrap;}
-  .updated{font-size:11px;color:var(--muted);margin-bottom:14px;text-align:right;}
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  a{color:var(--blue);text-decoration:none}
+  /* layout: sidebar + content */
+  .app{display:flex;min-height:100vh;}
+  .sidebar{width:230px;flex:0 0 230px;background:var(--panel);border-right:1px solid var(--line);
+    padding:20px 16px;position:sticky;top:0;height:100vh;}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+  .brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#0ea5e9);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;}
+  .brand .name{font-weight:700;font-size:15px;line-height:1.1;}
+  .brand .sub{font-size:11px;color:var(--muted);}
+  .nav{list-style:none;margin:0;padding:0;}
+  .nav li{margin:2px 0;}
+  .nav a{display:block;padding:9px 12px;border-radius:8px;color:var(--muted);font-weight:500;}
+  .nav a:hover{background:var(--panel2);color:var(--txt);}
+  .nav a.active{background:var(--bluebg);color:var(--blue);}
+  .side-foot{position:absolute;bottom:16px;left:16px;right:16px;font-size:11px;color:var(--muted);}
+  .content{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{height:60px;background:var(--panel);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:0 28px;}
+  .topbar h1{font-size:16px;font-weight:700;margin:0;}
+  .topbar .right{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:13px;}
+  .badge{font-size:11px;font-weight:700;padding:5px 11px;border-radius:999px;
+    background:var(--greenbg);color:var(--green);}
+  .main{padding:28px;max-width:1400px;width:100%;margin:0 auto;}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;}
+  .col-8{grid-column:span 8;} .col-4{grid-column:span 4;}
+  .col-6{grid-column:span 6;} .col-12{grid-column:span 12;}
+  @media (max-width:1100px){ .col-8,.col-4,.col-6{grid-column:span 12;} .sidebar{display:none;} }
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px;margin-bottom:12px;}
-  .card h2{margin:0 0 10px;font-size:13px;font-weight:700;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.8px;display:flex;justify-content:space-between;align-items:center;}
-  .pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.4px;}
-  .pill.green{background:rgba(63,185,80,.15);color:var(--green);}
-  .pill.amber{background:rgba(210,153,34,.15);color:var(--amber);}
-  .pill.red{background:rgba(248,81,73,.15);color:var(--red);}
-  .pill.blue{background:rgba(88,166,255,.15);color:var(--blue);}
-  /* risk gauge */
-  .gauge{height:10px;border-radius:999px;background:var(--panel2);overflow:hidden;border:1px solid var(--line);}
+    box-shadow:var(--shadow);padding:18px 20px;}
+  .card h2{margin:0 0 14px;font-size:13px;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;}
+  .pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.3px;}
+  .pill.green{background:var(--greenbg);color:var(--green);}
+  .pill.amber{background:var(--amberbg);color:var(--amber);}
+  .pill.red{background:var(--redbg);color:var(--red);}
+  .pill.blue{background:var(--bluebg);color:var(--blue);}
+  .pill.gray{background:var(--panel2);color:var(--muted);border:1px solid var(--line);}
+  /* KPI strip */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:18px;}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:16px 18px;}
+  .kpi .label{font-size:12px;color:var(--muted);font-weight:600;}
+  .kpi .val{font-size:22px;font-weight:700;margin-top:6px;}
+  .kpi .val.sm{font-size:16px;}
+  /* risk bar */
+  .gauge{height:12px;border-radius:999px;background:var(--panel2);overflow:hidden;border:1px solid var(--line);}
   .gauge > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--amber));}
-  .gauge-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;}
-  .row{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line);font-size:13px;}
+  .gauge-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:8px;}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px;}
   .row:first-of-type{border-top:none;}
-  .row .k{color:var(--muted);}
-  .row .v{font-weight:600;}
+  .row .k{color:var(--muted);} .row .v{font-weight:600;}
   .sym{font-weight:700;}
-  .pos{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13px;}
+  .pos{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:14px;}
   .pos:first-of-type{border-top:none;}
   .long{color:var(--green);} .short{color:var(--red);}
-  .muted{color:var(--muted);font-size:12px;}
-  button{width:100%;margin-top:10px;padding:11px;border-radius:12px;border:1px solid var(--line);
-    background:var(--panel2);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;}
-  button:active{transform:translateY(1px);}
-  .status{font-size:12px;margin-top:8px;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  @media (max-width:380px){.grid2{grid-template-columns:1fr;}}
-  .empty{color:var(--muted);font-size:12px;padding:8px 0;}
+  .muted{color:var(--muted);font-size:13px;}
+  .empty{color:var(--muted);font-size:13px;padding:10px 0;}
+  button{margin-top:12px;width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--line);
+    background:var(--blue);color:#fff;font-size:14px;font-weight:600;cursor:pointer;}
+  button:hover{filter:brightness(1.05);} button:active{transform:translateY(1px);} button:disabled{opacity:.6;cursor:default;}
+  .status{font-size:12px;color:var(--muted);margin-top:10px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
+  td .long{font-weight:600;} td .short{font-weight:600;}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="title">Edgelabs Monitor<small>autonomous trading agent</small></div>
-    <div class="badge">DEMO · READ-ONLY</div>
-  </header>
-  <div class="updated" id="updated">—</div>
-
-  <!-- Risk / combined book -->
-  <div class="card">
-    <h2>Combined Book <span class="pill blue" id="dd-pill">DD 4% cap</span></h2>
-    <div class="gauge"><i id="dd-bar" style="width:0%"></i></div>
-    <div class="gauge-label"><span id="dd-used">used 0.0%</span><span>budget 4.0%</span></div>
-    <div class="row"><span class="k">Grader verdict</span><span class="v" id="verdict">—</span></div>
-    <div class="row"><span class="k">Forward return</span><span class="v" id="fret">—</span></div>
-    <div class="row"><span class="k">Journal signals</span><span class="v" id="jrows">—</span></div>
-  </div>
-
-  <!-- Sleeves -->
-  <div class="grid2">
-    <div class="card">
-      <h2>H5 Equity <span class="pill green">PROVEN</span></h2>
-      <div id="h5" class="muted">loading…</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">E</div>
+      <div><div class="name">Edgelabs</div><div class="sub">trading monitor</div></div>
     </div>
-    <div class="card">
-      <h2>H6 Crypto <span class="pill amber">RISK-CAPPED</span></h2>
-      <div id="h6" class="muted">loading…</div>
+    <ul class="nav">
+      <li><a class="active" href="#">Overview</a></li>
+      <li><a href="#">Strategies</a></li>
+      <li><a href="#">Forward Test</a></li>
+      <li><a href="#">Broker</a></li>
+      <li><a href="#">Settings</a></li>
+    </ul>
+    <div class="side-foot">localhost · read-only<br/>no credentials stored</div>
+  </aside>
+
+  <div class="content">
+    <div class="topbar">
+      <h1>Overview</h1>
+      <div class="right">
+        <span id="updated" class="muted">—</span>
+        <span class="badge">DEMO · READ-ONLY</span>
+      </div>
     </div>
-  </div>
 
-  <!-- Forward journal -->
-  <div class="card">
-    <h2>Forward Journal</h2>
-    <div id="journal"><div class="empty">no signals yet</div></div>
-  </div>
+    <div class="main">
+      <!-- KPI strip -->
+      <div class="kpis">
+        <div class="kpi"><div class="label">Grader verdict</div><div class="val" id="kpi-verdict">—</div></div>
+        <div class="kpi"><div class="label">Forward return</div><div class="val" id="kpi-ret">—</div></div>
+        <div class="kpi"><div class="label">Journal signals</div><div class="val" id="kpi-jrows">—</div></div>
+        <div class="kpi"><div class="label">Demo balance</div><div class="val sm" id="kpi-bal">—</div></div>
+      </div>
 
-  <!-- TradeLocker demo -->
-  <div class="card">
-    <h2>TradeLocker Demo <span class="pill blue" id="tl-pill">disconnected</span></h2>
-    <div class="row"><span class="k">Balance</span><span class="v" id="tl-bal">—</span></div>
-    <div class="row"><span class="k">Equity</span><span class="v" id="tl-eq">—</span></div>
-    <div id="tl-positions"><div class="empty">not connected</div></div>
-    <button id="tl-btn">Connect demo account</button>
-    <div class="status muted" id="tl-status">read-only · credentials from session env</div>
+      <div class="grid">
+        <!-- Combined book + risk -->
+        <div class="card col-8">
+          <h2>Combined Book <span class="pill blue">DD cap 4%</span></h2>
+          <div class="gauge"><i id="dd-bar" style="width:0%"></i></div>
+          <div class="gauge-label"><span id="dd-used">used 0.0%</span><span>budget 4.0%</span></div>
+          <div class="row"><span class="k">Grader verdict</span><span class="v" id="verdict">—</span></div>
+          <div class="row"><span class="k">Forward return</span><span class="v" id="fret">—</span></div>
+          <div class="row"><span class="k">Max drawdown (tracked)</span><span class="v" id="fdd">—</span></div>
+          <div class="row"><span class="k">Journal signals</span><span class="v" id="jrows">—</span></div>
+        </div>
+
+        <!-- Sleeves -->
+        <div class="card col-4">
+          <h2>Strategy Sleeves</h2>
+          <div class="row"><span class="k">H5 Equity</span><span class="pill green">PROVEN</span></div>
+          <div id="h5" class="muted" style="padding-top:8px">loading…</div>
+          <div class="row" style="margin-top:10px"><span class="k">H6 Crypto</span><span class="pill amber">RISK-CAPPED</span></div>
+          <div id="h6" class="muted" style="padding-top:8px">loading…</div>
+        </div>
+
+        <!-- Forward journal -->
+        <div class="card col-8">
+          <h2>Forward Journal</h2>
+          <table>
+            <thead><tr><th>Symbol</th><th>Sleeve</th><th>Direction</th><th>Weight</th></tr></thead>
+            <tbody id="journal"><tr><td colspan="4" class="empty">no signals yet</td></tr></tbody>
+          </table>
+        </div>
+
+        <!-- TradeLocker demo -->
+        <div class="card col-4">
+          <h2>TradeLocker Demo <span class="pill gray" id="tl-pill">disconnected</span></h2>
+          <div class="row"><span class="k">Balance</span><span class="v" id="tl-bal">—</span></div>
+          <div class="row"><span class="k">Equity</span><span class="v" id="tl-eq">—</span></div>
+          <div class="row"><span class="k">Account</span><span class="v" id="tl-acct">—</span></div>
+          <div style="margin-top:10px;font-size:12px;color:var(--muted);font-weight:600">Positions</div>
+          <div id="tl-positions"><div class="empty">not connected</div></div>
+          <button id="tl-btn">Connect demo account</button>
+          <div class="status" id="tl-status">read-only · credentials from session env</div>
+          <div class="status" id="tl-order" style="margin-top:6px"></div>
+          <div id="order-box" style="margin-top:12px;display:none">
+            <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px">Paper order (Stage 2 — DEMO only)</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="ord-sym" placeholder="EURUSD" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px" />
+              <select id="ord-side" style="padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+                <option>BUY</option><option>SELL</option>
+              </select>
+              <input id="ord-qty" value="0.01" style="width:70px;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px" />
+            </div>
+            <button id="ord-btn" style="background:var(--green)">Place demo order</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -109,20 +185,21 @@ async function loadState(){
     const r = await fetch('/api/state'); const s = await r.json();
     $('updated').textContent = 'updated ' + new Date(s.updated).toLocaleTimeString();
     $('jrows').textContent = s.journal_rows ?? 0;
-    // grader
+    $('kpi-jrows').textContent = s.journal_rows ?? 0;
     if(s.grader){
       const v = s.grader.verdict;
       const cls = v==='CONSISTENT'?'green':(v==='BREACH'?'red':'amber');
       $('verdict').innerHTML = pill(cls, v);
-      $('fret').textContent = (s.grader.return_pct>=0?'+':'') + s.grader.return_pct.toFixed(2) + '%';
+      $('kpi-verdict').innerHTML = pill(cls, v);
+      const ret = (s.grader.return_pct>=0?'+':'') + s.grader.return_pct.toFixed(2) + '%';
+      $('fret').textContent = ret; $('kpi-ret').textContent = ret;
       const dd = Math.min(s.grader.max_dd_pct, 100);
       $('dd-bar').style.width = Math.min(100, dd / (s.dd_budget_pct||4)*100).toFixed(1) + '%';
       $('dd-used').textContent = 'used ' + dd.toFixed(2) + '%';
+      $('fdd').textContent = dd.toFixed(2) + '%';
     }
-    // sleeves
     renderSleeve('h5', s.sleeves && s.sleeves['H5_equity']);
     renderSleeve('h6', s.sleeves && s.sleeves['H6_crypto']);
-    // journal
     renderJournal(s.sleeves);
   }catch(e){ $('updated').textContent = 'error: ' + e.message; }
 }
@@ -141,10 +218,11 @@ function renderJournal(sleeves){
   const all = [];
   for(const k in sleeves){ for(const p of sleeves[k]) all.push({...p, sleeve:k}); }
   const el = $('journal');
-  if(!all.length){ el.innerHTML = '<div class="empty">no signals yet</div>'; return; }
-  el.innerHTML = all.slice(-8).reverse().map(p=>{
-    return `<div class="pos"><span class="sym">${p.symbol}</span>
-      <span class="muted">${p.sleeve.replace('_',' ')} · ${p.direction}</span></div>`;
+  if(!all.length){ el.innerHTML = '<tr><td colspan="4" class="empty">no signals yet</td></tr>'; return; }
+  el.innerHTML = all.slice(-12).reverse().map(p=>{
+    const d = p.direction==='LONG'?'long':'short';
+    return `<tr><td class="sym">${p.symbol}</td><td class="muted">${p.sleeve.replace('_',' ')}</td>
+      <td class="${d}">${p.direction}</td><td>${p.weight.toFixed(3)}</td></tr>`;
   }).join('');
 }
 
@@ -155,13 +233,16 @@ async function connectDemo(){
     if(d.connected){
       $('tl-pill').className = 'pill green'; $('tl-pill').textContent = 'connected';
       $('tl-bal').textContent = d.balance!=null ? '$'+Number(d.balance).toLocaleString() : '—';
+      $('kpi-bal').textContent = d.balance!=null ? '$'+Number(d.balance).toLocaleString() : '—';
       $('tl-eq').textContent = d.equity!=null ? '$'+Number(d.equity).toLocaleString() : '—';
+      $('tl-acct').textContent = d.account_id || '—';
       const ps = d.positions || [];
       $('tl-positions').innerHTML = ps.length
         ? ps.map(p=>`<div class="pos"><span class="sym">${p.symbol}</span>
             <span class="${p.side==='LONG'||p.direction==='LONG'?'long':'short'}">${(p.side||p.direction)||''}</span></div>`).join('')
         : '<div class="empty">no open positions</div>';
       $('tl-status').textContent = 'read-only demo snapshot';
+      $('order-box').style.display = 'block';
     } else {
       $('tl-pill').className = 'pill red'; $('tl-pill').textContent = 'refused';
       $('tl-status').textContent = d.reason || 'not connected';
@@ -174,6 +255,24 @@ async function connectDemo(){
 $('tl-btn').addEventListener('click', connectDemo);
 loadState();
 setInterval(loadState, 15000);
+
+async function placeOrder(){
+  const sym = $('ord-sym').value.trim() || 'EURUSD';
+  const side = $('ord-side').value;
+  const qty = parseFloat($('ord-qty').value) || 0.01;
+  $('ord-btn').disabled = true; $('tl-order').textContent = 'placing ' + side + ' ' + qty + ' ' + sym + ' (demo)…';
+  try{
+    const r = await fetch('/api/demo/order', {method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({symbol:sym, side, qty})});
+    const d = await r.json();
+    $('tl-order').textContent = d.ok ? ('OK: ' + d.side + ' ' + d.qty + ' ' + d.symbol + ' (demo)')
+                                     : ('REJECTED: ' + (d.reason || 'unknown'));
+    if(d.ok) loadState();
+  }catch(e){ $('tl-order').textContent = 'error: ' + e.message; }
+  finally{ $('ord-btn').disabled = false; }
+}
+$('ord-btn').addEventListener('click', placeOrder);
 </script>
 </body>
 </html>

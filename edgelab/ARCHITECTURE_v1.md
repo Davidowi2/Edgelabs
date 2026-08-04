@@ -108,9 +108,10 @@ for detail + honest caveats. Summary of deviations from this document to review:
   `CLRTYFX#D#2329061` (DEMO, `#D#` marker). A read-only connector is verified
   live (`demo.tradelocker.com/backend-api`, `server=CLRTYFX`, `accNum` header).
   It places NO orders. Within the "no live trading / no live broker" lock.
-- **Stage 2 (paper fills)** capability (`place_demo_order`) added but OFF by
-  default (`EDGELAB_DEMO_FILL` unset); not wired to auto-execute. Requires
-  explicit human enable + DEMO confirmation.
+- **Stage 2 (paper fills)** capability (`place_demo_order`) PROVEN live on the
+  Clarity FX demo (2026-08-04): 0.01 EURUSD filled + closed, account left flat.
+  Gated behind `EDGELAB_DEMO_FILL=1` + confirmed DEMO; never touches live. Auto-exec
+  still disabled (no scheduled trading). H5 forward-test needs an equities demo.
 - **Data source** expanded beyond Dukascopy: `MarketDataFeed` uses yfinance
   (equities/ETFs/FX) + ccxt (crypto), cached to CSV — reproducible.
 - **H5** is the only proven edge; validated on ~2y daily (shorter than the 5y

@@ -152,3 +152,52 @@ def test_no_order_fields_in_response(monkeypatch):
     EXEC = {"order", "orders", "execute", "place", "trade", "submit", "fill"}
     assert not (EXEC & set(d.keys()))
     assert d.get("orders_placed") == 0
+
+
+def test_place_demo_order_refuses_without_flag(monkeypatch):
+    monkeypatch.setenv("TL_EMAIL", "x@y.z")
+    monkeypatch.setenv("TL_PASSWORD", "secret")
+    monkeypatch.setenv("TL_SERVER", "CLRTYFX")
+    monkeypatch.setenv("TL_ACCOUNT_ID", "CLRTYFX#D#2329061")
+    monkeypatch.delenv("EDGELAB_DEMO_FILL", raising=False)
+    out = srv.place_demo_order("EURUSD", "BUY", 0.01)
+    assert out["ok"] is False
+    assert "EDGELAB_DEMO_FILL" in out["reason"]
+
+
+def test_place_demo_order_refuses_live(monkeypatch):
+    monkeypatch.setenv("TL_EMAIL", "x@y.z")
+    monkeypatch.setenv("TL_PASSWORD", "secret")
+    monkeypatch.setenv("TL_SERVER", "CLRTYFX")
+    monkeypatch.setenv("TL_ACCOUNT_ID", "PRDTL#O#1785871804162702300")  # looks PROD
+    monkeypatch.setenv("EDGELAB_DEMO_FILL", "1")
+    out = srv.place_demo_order("EURUSD", "BUY", 0.01)
+    assert out["ok"] is False
+    assert "DEMO" in out["reason"] or "live" in out["reason"].lower()
+
+
+def test_place_demo_order_happy_path(monkeypatch):
+    monkeypatch.setenv("TL_EMAIL", "x@y.z")
+    monkeypatch.setenv("TL_PASSWORD", "secret")
+    monkeypatch.setenv("TL_SERVER", "CLRTYFX")
+    monkeypatch.setenv("TL_ACCOUNT_ID", "CLRTYFX#D#2329061")
+    monkeypatch.setenv("EDGELAB_DEMO_FILL", "1")
+    fake = _FakeRequests([
+        ("/auth/jwt/token", _FakeResp(201, {"accessToken": "T", "refreshToken": "R"})),
+        ("/auth/jwt/all-accounts", _FakeResp(200, {"accounts": [{"id": "A1", "accNum": "1"}]})),
+        ("/instruments", _FakeResp(200, {"d": {"instruments": [
+            {"tradableInstrumentId": 14339, "id": 15364, "name": "EURUSD", "type": "FOREX",
+             "routes": [{"id": 1168398, "type": "TRADE"}, {"id": 1168392, "type": "INFO"}]}]}})),
+        ("/orders", _FakeResp(200, {"s": "ok", "d": {"orderId": "999"}})),
+    ])
+    _install(fake)
+    try:
+        out = srv.place_demo_order("EURUSD", "BUY", 0.01)
+    finally:
+        _install(None)
+    assert out["ok"] is True
+    assert out["demo"] is True
+    assert out["symbol"] == "EURUSD" and out["side"] == "BUY"
+    # the mock proves POST hit the orders endpoint after auth
+    posts = [c for c in fake.calls if c[0] == "POST"]
+    assert posts[-1][1].endswith("/orders")

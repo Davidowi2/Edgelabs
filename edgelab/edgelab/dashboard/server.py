@@ -202,28 +202,82 @@ def place_demo_order(symbol: str, side: str, qty: float, order_type: str = "MARK
 
     HARD GATE: requires EDGELAB_DEMO_FILL=1 env AND a confirmed-DEMO account
     (#D# marker / DEMO server). Refuses otherwise. Never touches a live account.
-    This is the ONLY function in the connector that may POST an order; it is NOT
-    called anywhere automatically — it exists solely as the authorized Stage 2
-    capability and must be invoked explicitly with the flag set.
+    This is the ONLY function that may POST an order; it is NOT called anywhere
+    automatically — only via the explicit /api/demo/order endpoint.
 
-    TradeLocker needs an instrumentId (not a symbol string); resolution would
-    happen via /trade/config or /trade/instruments. This function posts to the
-    verified endpoint; instrument resolution is left to the caller's pre-step.
+    Flow (verified against github.com/TradeLocker/tradelocker-python):
+      auth -> GET instruments (resolve symbol->tradableInstrumentId)
+           -> POST /trade/accounts/{id}/orders {tradableInstrumentId, qty, side, orderType}
     """
     if os.environ.get("EDGELAB_DEMO_FILL", "0") != "1":
         return {"ok": False, "reason": "EDGELAB_DEMO_FILL not set to 1; refusing (read-only mode)"}
-    server = os.environ.get("TL_SERVER", "")
-    account_id = os.environ.get("TL_ACCOUNT_ID", "")
+    email = os.environ.get("TL_EMAIL"); password = os.environ.get("TL_PASSWORD")
+    server = os.environ.get("TL_SERVER", ""); account_id = os.environ.get("TL_ACCOUNT_ID", "")
+    if not (email and password):
+        return {"ok": False, "reason": "no TL_EMAIL/TL_PASSWORD in session env"}
     is_demo = ("#D#" in account_id.upper()) or ("DEMO" in account_id.upper()) or ("DEMO" in server.upper())
     if not is_demo:
         return {"ok": False, "reason": "account not confirmed DEMO; refusing (no live orders)"}
-    return {
-        "ok": False,
-        "reason": ("gated capability present but instrument resolution + order payload "
-                   "not wired this session; set EDGELAB_DEMO_FILL=1 AND confirm DEMO, then "
-                   "implement resolution via /trade/instruments before any POST."),
-        "endpoint": "POST https://demo.tradelocker.com/backend-api/trade/accounts/{id}/orders",
-    }
+    if requests is None:
+        return {"ok": False, "reason": "requests lib unavailable"}
+    side_u = str(side).upper()
+    if side_u not in ("BUY", "SELL"):
+        return {"ok": False, "reason": f"side must be BUY/SELL, got {side}"}
+
+    host = "https://demo.tradelocker.com"; base = f"{host}/backend-api"
+    try:
+        # 1) auth
+        r = requests.post(f"{base}/auth/jwt/token",
+                          json={"email": email, "password": password, "server": server},
+                          timeout=15)
+        if r.status_code not in (200, 201):
+            return {"ok": False, "reason": f"auth failed ({r.status_code}): {r.text[:160]}"}
+        tok = r.json().get("accessToken") or r.json().get("accessToken")
+        if not tok:
+            return {"ok": False, "reason": "auth ok but no accessToken"}
+        H = {"Authorization": f"Bearer {tok}"}
+        # 2) discover account + accNum
+        acc = requests.get(f"{base}/auth/jwt/all-accounts", headers=H, timeout=15).json()
+        accounts = acc.get("accounts", [])
+        target = next((a for a in accounts
+                       if account_id and (str(a.get("accNum")) == account_id
+                                          or str(a.get("id")) == account_id)), None) or (accounts[0] if accounts else None)
+        if not target:
+            return {"ok": False, "reason": "no accounts returned"}
+        aid = target.get("id"); acc_num = target.get("accNum")
+        H2 = dict(H); H2["accNum"] = str(acc_num)
+        # 3) resolve symbol -> tradableInstrumentId
+        inst = requests.get(f"{base}/trade/accounts/{aid}/instruments", headers=H2, timeout=15).json()
+        insts = inst.get("d", {}).get("instruments", inst.get("instruments", []))
+        match = next((i for i in insts if str(i.get("name")) == str(symbol)
+                      or str(i.get("symbolName")) == str(symbol)), None)
+        if not match:
+            return {"ok": False, "reason": f"symbol {symbol} not found in demo instrument list"}
+        iid = match.get("tradableInstrumentId") or match.get("id")
+        # TradeLocker requires routeId (the TRADE route) on the order
+        routes = match.get("routes", [])
+        trade_route = next((rt for rt in routes if str(rt.get("type")) == "TRADE"), None)
+        route_id = trade_route.get("id") if trade_route else None
+        # 4) place order. Mirror TradeLocker's create_order payload exactly:
+        #    validity (IOC for market, GTC otherwise), type ("market"), routeId,
+        #    tradableInstrumentId as STRING, side BUY/SELL.
+        tif = "IOC" if order_type.upper() == "MARKET" else "GTC"
+        payload = {
+            "price": None,
+            "qty": str(qty),
+            "routeId": route_id,
+            "side": side_u,
+            "validity": tif,
+            "tradableInstrumentId": str(iid),
+            "type": order_type.lower(),   # "market" / "limit"
+        }
+        o = requests.post(f"{base}/trade/accounts/{aid}/orders", headers=H2,
+                          json=payload, timeout=15)
+        return {"ok": o.status_code in (200, 201), "status": o.status_code,
+                "symbol": symbol, "side": side_u, "qty": qty,
+                "demo": True, "response": o.text[:400]}
+    except Exception as e:
+        return {"ok": False, "reason": f"order error: {type(e).__name__}: {e}"}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -244,6 +298,24 @@ class Handler(BaseHTTPRequestHandler):
             return
         if self.path == "/api/demo":
             self._send(200, json.dumps(tradelocker_demo_snapshot()).encode())
+            return
+        self._send(404, b'{"error":"not found"}')
+
+    def do_POST(self):
+        if self.path == "/api/demo/order":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = json.loads(self.rfile.read(length) or b"{}")
+                symbol = body.get("symbol")
+                side = body.get("side", "BUY")
+                qty = float(body.get("qty", 0.01))
+                if not symbol:
+                    self._send(400, json.dumps({"ok": False, "reason": "symbol required"}).encode())
+                    return
+                result = place_demo_order(symbol, side, qty)
+                self._send(200, json.dumps(result).encode())
+            except Exception as e:
+                self._send(500, json.dumps({"ok": False, "reason": f"{type(e).__name__}: {e}"}).encode())
             return
         self._send(404, b'{"error":"not found"}')
 
