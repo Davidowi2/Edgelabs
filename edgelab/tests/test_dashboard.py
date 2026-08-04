@@ -89,13 +89,14 @@ def test_demo_readonly_happy_path(monkeypatch):
     monkeypatch.setenv("TL_SERVER", "Clarity FX")
     monkeypatch.setenv("TL_ACCOUNT_ID", "CLRTYFX#D#2329061")
     fake = _FakeRequests([
-        ("/auth/jwt/token", _FakeResp(200, {"accessToken": "TOK", "refreshToken": "R"})),
-        ("/auth/jwt/all-accounts", _FakeResp(200, {"accounts": [{"id": "CLRTYFX#D#2329061", "accNum": 1}]})),
+        ("/auth/jwt/token", _FakeResp(201, {"accessToken": "TOK", "refreshToken": "R"})),
+        ("/auth/jwt/all-accounts", _FakeResp(200, {"accounts": [{"id": "2329061", "accNum": "1",
+                                                                  "accountBalance": "9980.00", "name": "CLRTYFX#x#1#1"}]})),
         ("/positions", _FakeResp(200, {"positions": [
             {"symbol": "XAUUSD", "side": 1, "qty": 0.5},
             {"symbol": "BTCUSD", "side": 0, "qty": 0.01},
         ]})),
-        ("/state", _FakeResp(200, {"accountBalance": 100000, "equity": 100200})),
+        ("/state", _FakeResp(200, {"equity": "10020.00"})),
     ])
     _install(fake)
     try:
@@ -106,7 +107,7 @@ def test_demo_readonly_happy_path(monkeypatch):
     assert d["host"] == "https://demo.tradelocker.com"
     assert d["read_only"] is True
     assert d["orders_placed"] == 0
-    assert d["balance"] == 100000 and d["equity"] == 100200
+    assert d["balance"] == "9980.00" and d["equity"] == "10020.00"
     assert {p["symbol"] for p in d["positions"]} == {"XAUUSD", "BTCUSD"}
     assert d["positions"][0]["side"] == "LONG" and d["positions"][1]["side"] == "SHORT"
     # after auth, connector must only GET (positions/state/accounts), never POST again

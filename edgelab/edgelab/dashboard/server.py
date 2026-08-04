@@ -99,13 +99,18 @@ def build_state():
 def tradelocker_demo_snapshot():
     """Read-only DEMO snapshot. Credentials from session env ONLY.
     Uses the OFFICIAL TradeLocker REST API (verified 2026-08-04 against
-    github.com/TradeLocker/tradelocker-python):
+    github.com/TradeLocker/tradelocker-python, and a live read-only call to the
+    user's Clarity FX demo account):
       - DEMO host:  https://demo.tradelocker.com/backend-api
       - LIVE host:  https://api.tradelocker.com/backend-api
-      - auth: POST /auth/jwt/token {email,password,server} -> accessToken
-      - read-only: /auth/jwt/all-accounts, /trade/accounts/{id}/positions,
-                   /trade/accounts/{id}/state, /trade/accounts/{id}/executions
-    Never places orders. Refuses LIVE host (api.tradelocker.com) outright.
+      - auth: POST /auth/jwt/token {email,password,server} -> 201 + accessToken
+              (server for this account = "CLRTYFX"; accNum header required on
+               trade reads)
+      - read-only: GET /auth/jwt/all-accounts, /trade/accounts/{id}/state,
+                   /trade/accounts/{id}/positions (all with accNum header)
+    balance lives on the account record (accountBalance); equity on /state.
+    Never places orders. Refuses LIVE host / PRD / bare CLRTYFX (needs #D# or
+    DEMO marker).
     """
     email = os.environ.get("TL_EMAIL")
     password = os.environ.get("TL_PASSWORD")
@@ -138,7 +143,7 @@ def tradelocker_demo_snapshot():
         r = requests.post(f"{base}/auth/jwt/token",
                           json={"email": email, "password": password, "server": server},
                           timeout=15)
-        if r.status_code != 200:
+        if r.status_code not in (200, 201):
             return {"connected": False, "reason": f"auth failed ({r.status_code}): {r.text[:160]}"}
         tok = r.json().get("accessToken") or r.json().get("accessToken")
         if not tok:
@@ -147,15 +152,24 @@ def tradelocker_demo_snapshot():
         # 2) discover accounts (read-only)
         acc = requests.get(f"{base}/auth/jwt/all-accounts", headers=H, timeout=15).json()
         accounts = acc.get("accounts", [])
-        # 3) target the demo account id if supplied, else first
-        target = next((a for a in accounts if account_id and str(a.get("id")) == account_id),
-                      accounts[0] if accounts else None)
-        if not target:
+        if not accounts:
             return {"connected": False, "reason": "no accounts returned for this login"}
+        # 3) target: match by accNum (user supplies "2329061") or id; else first
+        target = None
+        for a in accounts:
+            if account_id and (str(a.get("accNum")) == account_id or str(a.get("id")) == account_id):
+                target = a
+                break
+        if target is None:
+            target = accounts[0]
         aid = target.get("id")
-        # 4) read-only positions + state
-        pos = requests.get(f"{base}/trade/accounts/{aid}/positions", headers=H, timeout=15).json()
-        st = requests.get(f"{base}/trade/accounts/{aid}/state", headers=H, timeout=15).json()
+        acc_num = target.get("accNum")
+        # 4) read-only state + positions (require accNum header per TradeLocker)
+        H2 = dict(H)
+        if acc_num is not None:
+            H2["accNum"] = str(acc_num)
+        st = requests.get(f"{base}/trade/accounts/{aid}/state", headers=H2, timeout=15).json()
+        pos = requests.get(f"{base}/trade/accounts/{aid}/positions", headers=H2, timeout=15).json()
         positions = []
         for p in pos.get("positions", pos.get("data", [])):
             positions.append({
@@ -163,13 +177,15 @@ def tradelocker_demo_snapshot():
                 "side": "LONG" if (p.get("side") in (1, "1", "BUY")) else "SHORT",
                 "qty": p.get("qty") or p.get("amount"),
             })
-        bal = (st.get("accountBalance") or st.get("balance")
-               or (st.get("data", {}) or {}).get("accountBalance"))
-        eq = (st.get("equity") or (st.get("data", {}) or {}).get("equity"))
+        # balance lives on the account record; equity on state if present
+        bal = target.get("accountBalance") or target.get("balance")
+        eq = (st.get("equity") or (st.get("data", {}) or {}).get("equity")
+              or target.get("equity"))
         return {
             "connected": True,
             "host": host,
             "account_id": aid,
+            "acc_num": acc_num,
             "balance": bal,
             "equity": eq,
             "positions": positions,

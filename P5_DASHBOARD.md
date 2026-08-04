@@ -43,9 +43,12 @@ fields. Full suite: **691 passed**.
 
 ## Note on the demo account
 The user's demo account is `CLRTYFX#D#2329061` (Clarity FX, **DEMO** — the `#D#`
-segment confirms it). The gate accepts IDs/servers carrying an explicit
-DEMO/`#D#` marker and refuses bare `CLRTYFX` or anything `PRD*` (production).
-With the correct `#D#` ID the panel passes the gate; the live snapshot still
-needs the **verified TradeLocker REST endpoints** (no API-key feature exists) to
-return real positions. Until those are wired, the panel reports a read-only
-scaffold notice. No live account is touched.
+segment confirms it). The connector **successfully connects read-only** (verified
+live 2026-08-04): POST `/auth/jwt/token` with `server="CLRTYFX"` returns a 201 +
+`accessToken`; GET `/auth/jwt/all-accounts` lists the account (balance on the
+account record, e.g. `9980.00`); `/trade/accounts/{id}/state` and `/positions`
+require the `accNum` header. The connector maps these correctly and returns
+balance/positions with **`orders_placed: 0`** — it never calls order endpoints.
+To enable the live demo feed, run the dashboard with session env
+`TL_EMAIL` / `TL_PASSWORD` / `TL_SERVER=CLRTYFX` / `TL_ACCOUNT_ID=CLRTYFX#D#2329061`
+and click "Connect demo account". No live account is touched.
