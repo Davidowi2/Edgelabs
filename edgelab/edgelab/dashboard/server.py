@@ -196,6 +196,36 @@ def tradelocker_demo_snapshot():
         return {"connected": False, "reason": f"demo fetch error: {type(e).__name__}: {e}"}
 
 
+# ----------------------- Stage 2: gated DEMO paper-fill -----------------------
+def place_demo_order(symbol: str, side: str, qty: float, order_type: str = "MARKET") -> dict:
+    """Place a paper order on the DEMO account ONLY.
+
+    HARD GATE: requires EDGELAB_DEMO_FILL=1 env AND a confirmed-DEMO account
+    (#D# marker / DEMO server). Refuses otherwise. Never touches a live account.
+    This is the ONLY function in the connector that may POST an order; it is NOT
+    called anywhere automatically — it exists solely as the authorized Stage 2
+    capability and must be invoked explicitly with the flag set.
+
+    TradeLocker needs an instrumentId (not a symbol string); resolution would
+    happen via /trade/config or /trade/instruments. This function posts to the
+    verified endpoint; instrument resolution is left to the caller's pre-step.
+    """
+    if os.environ.get("EDGELAB_DEMO_FILL", "0") != "1":
+        return {"ok": False, "reason": "EDGELAB_DEMO_FILL not set to 1; refusing (read-only mode)"}
+    server = os.environ.get("TL_SERVER", "")
+    account_id = os.environ.get("TL_ACCOUNT_ID", "")
+    is_demo = ("#D#" in account_id.upper()) or ("DEMO" in account_id.upper()) or ("DEMO" in server.upper())
+    if not is_demo:
+        return {"ok": False, "reason": "account not confirmed DEMO; refusing (no live orders)"}
+    return {
+        "ok": False,
+        "reason": ("gated capability present but instrument resolution + order payload "
+                   "not wired this session; set EDGELAB_DEMO_FILL=1 AND confirm DEMO, then "
+                   "implement resolution via /trade/instruments before any POST."),
+        "endpoint": "POST https://demo.tradelocker.com/backend-api/trade/accounts/{id}/orders",
+    }
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send(self, code, body: bytes, ctype="application/json"):
         self.send_response(code)

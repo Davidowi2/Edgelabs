@@ -98,3 +98,23 @@ environment:
 ## Phase Access Rules
 - Phase 0 modules must not import broker SDKs.
 - State bus is the only allowed shared mechanism between modules.
+
+## Milestone Record (agent-run, 2026-08-04)
+
+P1–P5 executed (no live capital). See `RESEARCH_PROTOCOL_v1.md` Milestone Record
+for detail + honest caveats. Summary of deviations from this document to review:
+
+- **`broker_for_demo`** is now concrete: **Clarity FX on TradeLocker**, account
+  `CLRTYFX#D#2329061` (DEMO, `#D#` marker). A read-only connector is verified
+  live (`demo.tradelocker.com/backend-api`, `server=CLRTYFX`, `accNum` header).
+  It places NO orders. Within the "no live trading / no live broker" lock.
+- **Stage 2 (paper fills)** capability (`place_demo_order`) added but OFF by
+  default (`EDGELAB_DEMO_FILL` unset); not wired to auto-execute. Requires
+  explicit human enable + DEMO confirmation.
+- **Data source** expanded beyond Dukascopy: `MarketDataFeed` uses yfinance
+  (equities/ETFs/FX) + ccxt (crypto), cached to CSV — reproducible.
+- **H5** is the only proven edge; validated on ~2y daily (shorter than the 5y
+  bar in `validation_bar`). Human review required before promotion.
+- **H7** RETIRED (genuine failure); **H8** drafted (true rate carry, blocked on
+  FRED package/key decision).
+- No `EDGELAB_LIVE_EXEC=1`; no live capital; Phase 4 (Blueberry) not started.

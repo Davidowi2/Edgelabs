@@ -103,6 +103,7 @@ Retest is allowed only with new evidence or a materially changed market structur
 
 ## Research Execution Log
 
+
 Every test run creates a timestamped artifact:
 - `edgelab/research/results/<hypothesis_id>_<yyyy-mm-dd>.json`
 
@@ -126,3 +127,29 @@ Log contents:
 ## Change Control
 
 Changes to validation thresholds require an explicit `ARCHITECTURE.md` update.
+
+## Milestone Record (agent-run, 2026-08-04)
+
+Roadmap P1–P5 executed and verified by Hermes (no live capital this session).
+
+- **P1 — Data reproducibility:** `MarketDataFeed` (yfinance equities/ETFs, ccxt crypto, FX via `AUDUSD=X` etc.) caches to CSV. Reproducible.
+- **P2 — H2 re-spec (XAUUSD H4):** re-specified as a new hypothesis and run honestly; **all retired** (no edge).
+- **P3 — Portfolio layer:** vol-parity 80/20 allocator + 4% DD cap built. Combined book 17.8% return, 4.00% max DD capped. Still short of the >=2-strategy bar (only H5 proven).
+- **P4 — Forward test harness:** monthly journal cron + read-only grader (verdict CONSISTENT on seeded 3 H5 rows). Internal-paper only (no broker fills yet).
+- **P5 — Monitoring dashboard:** localhost-only, mobile-first, **no password**, read-only. TradeLocker DEMO connector VERIFIED LIVE (read-only: auth + accounts/positions/state, `orders_placed:0`). Host `demo.tradelocker.com/backend-api`, `server=CLRTYFX`, `accNum` header.
+
+### Honest caveats (flagged for human review per Approval Authority)
+- **H5** (equity cross-sectional momentum) is the ONLY hypothesis that passed the
+  bar (PF 1.39 OOS, 912 trades, MC 100%, <4% DD). It was validated on ~2y of
+  daily data — **shorter than the protocol's 5-year minimum**. Final judgment
+  requires human review.
+- **H6** (crypto 4h) is risk-capped (fails 200-trade & 4% DD bars); not promoted.
+- **H7** (G10 FX carry, 12M price-return proxy) **RETIRED** — PF 0.74, MC 7.3%,
+  DD 9.17%. Genuine failure, not tuned. H8 drafted (true rate-differential carry,
+  blocked on FRED package/key).
+- **Read-only DEMO connector** exists but places NO orders. A gated
+  `place_demo_order()` (Stage 2 paper fills) is present, OFF by default
+  (`EDGELAB_DEMO_FILL` unset), and not wired to auto-execute. This is within the
+  Phase 0 "no live trading / no live broker" lock (read-only demo only).
+- No live capital deployed; executor remains gated behind `EDGELAB_LIVE_EXEC=1`
+  (unset).
