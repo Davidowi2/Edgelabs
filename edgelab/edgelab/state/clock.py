@@ -21,10 +21,14 @@ broker_clock = BrokerTime(offset="+3", dst=True)
 
 class Clock:
     def __init__(self, session_windows: list[list[int]] | None = None) -> None:
-        self.session_windows = session_windows or [
-            [8, 0, 11, 0],
-            [13, 30, 16, 0],
-        ]
+        # None -> use the constitution's default NY windows.
+        # []   -> NO session gate (strategy defines its own gating).
+        self.session_windows = session_windows
+        if self.session_windows is None:
+            self.session_windows = [
+                [8, 0, 11, 0],
+                [13, 30, 16, 0],
+            ]
 
     def now_ny(self) -> datetime:
         return datetime.now(NY_TZ)
@@ -37,6 +41,9 @@ class Clock:
         return broker_clock.now()
 
     def in_session(self, dt: datetime) -> bool:
+        # Empty list => no gate: always considered in session.
+        if not self.session_windows:
+            return True
         # Normalize to NY: if naive, assume it is already NY wall-clock time.
         local = self.to_ny(dt) if dt.tzinfo is not None else dt
         current_minutes = local.hour * 60 + local.minute

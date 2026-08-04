@@ -37,6 +37,24 @@ PIP_SIZE_MAP: dict[str, Decimal] = {
     "XAGUSD": Decimal("0.01"),
 }
 
+# Asset-class resolution for non-FX instruments (crypto / equities).
+# UNIT-class: 1 "lot" = 1 unit of the asset; risk is computed in price terms,
+# so pip_size = 1.0 (one price unit) and pip_value_per_lot = entry price.
+CRYPTO_SUFFIXES = ("/USDT", "/USD", "/USDC", "USDT", "USD")
+EQUITY_LIKE = ("SPY", "QQQ", "XLF", "XLE", "XLK", "XLV", "XLI", "XLP", "XLY",
+               "XLB", "XLU", "IWM", "DIA", "VTI", "ARKK")
+
+
+def _asset_class(symbol: str) -> str:
+    s = symbol.upper()
+    if s in PIP_SIZE_MAP or s in PIP_VALUES:
+        return "FX"
+    if any(s.endswith(x) for x in CRYPTO_SUFFIXES) or s in ("BTC", "ETH", "SOL"):
+        return "UNIT"
+    if s in EQUITY_LIKE or (len(s) <= 5 and s.isalpha()):
+        return "UNIT"
+    return "UNIT"  # default: treat unknown as unit-priced asset
+
 
 def _quantize(value: Decimal) -> Decimal:
     return value.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
@@ -60,20 +78,34 @@ class PositionSizing:
         if risk_amount <= 0:
             return Decimal("0"), Decimal("0"), 0.0
 
-        pip_size = PIP_SIZE_MAP.get(symbol.upper(), Decimal("0.0001"))
-        stop_distance_pips = float(abs(entry_price - stop_loss) / pip_size)
+        # UNIT-class assets (crypto/equities): risk is in price terms.
+        # pip_size = 1.0 (one price unit), so stop_distance is in price units,
+        # and pip_value_per_lot = entry price (1 unit is worth its price).
+        if _asset_class(symbol) == "UNIT":
+            pip_size = Decimal("1.0")
+            pip_value_per_lot = entry_price
+        else:
+            pip_size = PIP_SIZE_MAP.get(symbol.upper(), Decimal("0.0001"))
+            pip_value_per_lot = PIP_VALUES.get(symbol.upper(), Decimal("10.0"))
 
+        stop_distance_pips = float(abs(entry_price - stop_loss) / pip_size)
         if spread_pips is not None:
             stop_distance_pips += float(spread_pips)
 
         if stop_distance_pips <= 0:
             return Decimal("0"), Decimal("0"), 0.0
 
-        pip_value_per_lot = PIP_VALUES.get(symbol.upper(), Decimal("10.0"))
         risk_per_lot = pip_value_per_lot * Decimal(str(stop_distance_pips))
         if risk_per_lot <= 0:
             return Decimal("0"), Decimal("0"), 0.0
 
         lot_size = risk_amount / risk_per_lot
-        lot_size = _quantize(lot_size)
+        # UNIT-class (crypto/equities) needs finer precision than FX lots:
+        # a $100 risk on a $60k asset with a $5k stop is ~0.00002 units.
+        if _asset_class(symbol) == "UNIT":
+            lot_size = lot_size.quantize(Decimal("0.00000001"), rounding=ROUND_HALF_UP)
+        else:
+            lot_size = _quantize(lot_size)
+        if lot_size <= 0:
+            return Decimal("0"), Decimal("0"), 0.0
         return lot_size, risk_amount, stop_distance_pips

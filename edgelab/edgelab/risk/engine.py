@@ -42,7 +42,9 @@ class RiskEngine:
         self.sizing = PositionSizing(config)
         self.correlation_groups = config.internal_risk.get("correlation_groups", {})
         self.session_windows = config.internal_risk.get("session_filter_ny", [])
-        self.clock = Clock(self.session_windows if self.session_windows else None)
+        # Pass the list through unchanged: None -> default NY windows,
+        # [] -> no gate (Clock treats empty list as always in session).
+        self.clock = Clock(self.session_windows)
 
     def evaluate(self, proposal: TradeProposal) -> Approval:
         self.state.reset_daily(proposal.timestamp)

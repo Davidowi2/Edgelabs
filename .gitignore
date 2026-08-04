@@ -1,0 +1,8 @@
+# runtime logs
+edgelab/logs/
+*.log
+
+# python
+__pycache__/
+*.pyc
+.venv/
