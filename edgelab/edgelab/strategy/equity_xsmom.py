@@ -110,3 +110,27 @@ def _compute_metrics(equity_curve, trades, initial_equity):
             "sharpe_ratio": sharpe, "max_drawdown_pct": max_dd,
             "total_return_pct": total_return_pct, "avg_rr": avg_rr,
             "avg_holding_bars": 1.0}
+
+
+def current_signal(prices: dict[str, pd.DataFrame], top_n: int = 3,
+                   lookback: int = 12) -> dict:
+    """Forward-test helper: which ETFs would H5 hold RIGHT NOW.
+
+    Computes 12-1 momentum on the most recent `lookback` months of daily closes
+    and returns the top-`top_n` ranked symbols with their momentum scores.
+    Used by the Alpaca paper forward-test to decide live paper positions.
+    Returns {as_of, selected:[symbol], ranked:[(symbol, mom)]}.
+    """
+    close_m = pd.DataFrame({s: df["close"].astype(float).resample("ME").last()
+                            for s, df in prices.items()}).dropna(how="any")
+    if len(close_m) < lookback + 1:
+        return {"as_of": None, "selected": [], "ranked": [],
+                "reason": f"need >= {lookback + 1} months of data"}
+    t = len(close_m) - 1
+    mom = (close_m.iloc[t - 1] - close_m.iloc[t - 1 - lookback]) / close_m.iloc[t - 1 - lookback]
+    ranked = sorted(mom.items(), key=lambda kv: kv[1], reverse=True)
+    selected = [s for s, _ in ranked[:top_n]]
+    return {"as_of": str(close_m.index[t].date()),
+            "selected": selected,
+            "ranked": [(s, float(m)) for s, m in ranked],
+            "reason": None}
