@@ -171,6 +171,25 @@
             <button id="ord-btn" style="background:var(--green)">Place demo order</button>
           </div>
         </div>
+
+        <!-- Alpaca H5 paper forward-test panel -->
+        <div class="card span-4">
+          <div class="card-head">
+            <span>Alpaca · H5 Paper</span>
+            <span class="pill" id="ap-pill">—</span>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi"><div class="kpi-k">Portfolio</div><div class="kpi-v" id="ap-pv">—</div></div>
+            <div class="kpi"><div class="kpi-k">Unrealized P&L</div><div class="kpi-v" id="ap-upl">—</div></div>
+          </div>
+          <div class="progress"><div class="progress-bar" id="ap-dd-bar" style="width:0%"></div></div>
+          <div class="status" id="ap-dd">DD 0.00% / cap 4.00%</div>
+          <div style="margin-top:10px;font-size:12px;color:var(--muted);font-weight:600">Positions (H5 basket)</div>
+          <div id="ap-positions"><div class="empty">no data yet</div></div>
+          <div class="status" id="ap-signal" style="margin-top:6px">signal: —</div>
+          <div class="status" id="ap-status" style="margin-top:6px">overwatch: idle</div>
+          <div class="status" id="ap-heartbeat" style="margin-top:6px;font-size:11px;opacity:.7">—</div>
+        </div>
       </div>
     </div>
   </div>
@@ -273,6 +292,42 @@ async function placeOrder(){
   finally{ $('ord-btn').disabled = false; }
 }
 $('ord-btn').addEventListener('click', placeOrder);
+
+async function loadAlpaca(){
+  try{
+    const r = await fetch('/api/alpaca'); const d = await r.json();
+    const p = d.persisted || {};
+    const live = d.live || {};
+    const connected = live.connected || d.paper;
+    $('ap-pill').className = 'pill ' + (connected ? 'green' : 'red');
+    $('ap-pill').textContent = connected ? 'live' : 'off';
+    $('ap-pv').textContent = p.portfolio_value!=null ? '$'+Number(p.portfolio_value).toLocaleString()
+                        : (live.portfolio_value!=null ? '$'+Number(live.portfolio_value).toLocaleString() : '—');
+    const upl = p.unrealized_pl;
+    if(upl!=null){ $('ap-upl').textContent = (upl>=0?'+$':'-$')+Math.abs(upl).toFixed(2);
+                   $('ap-upl').className = 'kpi-v ' + (upl>=0?'long':'short'); }
+    else $('ap-upl').textContent = '—';
+    const dd = p.dd_pct!=null ? p.dd_pct : 0;
+    const cap = p.dd_cap!=null ? p.dd_cap : 4;
+    $('ap-dd-bar').style.width = Math.min(100, Math.max(0, -dd)/cap*100).toFixed(1) + '%';
+    $('ap-dd-bar').style.background = (-dd) >= cap ? 'var(--red)' : (-dd) >= cap*0.75 ? 'var(--amber)' : 'var(--green)';
+    $('ap-dd').textContent = 'DD ' + dd.toFixed(2) + '% / cap ' + cap.toFixed(2) + '%' + (p.dd_breach ? ' · BREACH' : '');
+    const sig = p.signal || [];
+    const held = p.held || [];
+    $('ap-signal').textContent = 'H5 signal: ' + (sig.length ? sig.join(', ') : '—');
+    const posLive = live.positions || [];
+    const posSrc = posLive.length ? posLive : held.map(s=>({symbol:s, qty:'?'}));
+    $('ap-positions').innerHTML = posSrc.length
+      ? posSrc.map(po=>`<div class="pos"><span class="sym">${po.symbol}</span><span class="long">${po.qty}</span></div>`).join('')
+      : '<div class="empty">flat</div>';
+    const mode = p.mode ? (' · '+p.mode) : '';
+    $('ap-status').textContent = 'overwatch: ' + (p.status || 'idle') + mode;
+    $('ap-heartbeat').textContent = p.updated_at ? 'last update: ' + new Date(p.updated_at).toLocaleString() : 'no data yet';
+  }catch(e){ $('ap-heartbeat').textContent = 'error: ' + e.message; }
+}
+
+loadAlpaca();
+setInterval(loadAlpaca, 15000);
 </script>
 </body>
 </html>

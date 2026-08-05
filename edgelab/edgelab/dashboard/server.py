@@ -196,6 +196,39 @@ def tradelocker_demo_snapshot():
         return {"connected": False, "reason": f"demo fetch error: {type(e).__name__}: {e}"}
 
 
+# ----------------------- Alpaca paper (H5 forward-test) state -----------------------
+def alpaca_state():
+    """Dashboard view of the H5 paper forward-test on Alpaca.
+
+    Merges the live Alpaca paper snapshot (if creds present) with the persisted
+    overwatch state file (logs/overwatch_state.json) so the dashboard can show
+    the bot's REAL market progress: positions, DD vs cap, current H5 signal,
+    last overwatch heartbeat. Read-only display only.
+    """
+    from pathlib import Path as _P
+    state_file = _P(__file__).resolve().parents[2] / "logs" / "overwatch_state.json"
+    persisted = {}
+    if state_file.exists():
+        try:
+            persisted = json.loads(state_file.read_text())
+        except Exception:
+            persisted = {}
+    # live snapshot (read-only) if creds in env
+    live = {}
+    try:
+        from edgelab.broker import alpaca as _ap
+        if os.environ.get("APCA_API_KEY_ID"):
+            live = _ap.snapshot()
+    except Exception:
+        live = {}
+    return {
+        "persisted": persisted,
+        "live": live,
+        "paper": bool(live.get("connected")) or bool(persisted),
+        "read_only": True,
+    }
+
+
 # ----------------------- Stage 2: gated DEMO paper-fill -----------------------
 def place_demo_order(symbol: str, side: str, qty: float, order_type: str = "MARKET") -> dict:
     """Place a paper order on the DEMO account ONLY.
@@ -298,6 +331,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         if self.path == "/api/demo":
             self._send(200, json.dumps(tradelocker_demo_snapshot()).encode())
+            return
+        if self.path == "/api/alpaca":
+            self._send(200, json.dumps(alpaca_state()).encode())
             return
         self._send(404, b'{"error":"not found"}')
 

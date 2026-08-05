@@ -17,6 +17,7 @@ import sys
 import json
 import urllib.request
 from pathlib import Path
+from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -28,6 +29,29 @@ from edgelab.broker import alpaca                            # noqa: E402
 
 DD_CAP_PCT = 4.0          # hard risk gate from RESEARCH_PROTOCOL_v1
 INITIAL_EQUITY = 100_000  # Alpaca paper start
+
+LOG_DIR = ROOT / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+STATE_FILE = LOG_DIR / "overwatch_state.json"
+LOG_FILE = LOG_DIR / "overwatch.log"
+
+
+def _write_state(state: dict) -> None:
+    """Persist the latest overwatch snapshot so the dashboard can show it."""
+    try:
+        state["updated_at"] = datetime.now(timezone.utc).isoformat()
+        STATE_FILE.write_text(json.dumps(state, indent=2))
+    except Exception:
+        pass
+
+
+def _log(line: str) -> None:
+    try:
+        ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        with LOG_FILE.open("a") as f:
+            f.write(f"{ts} {line}\n")
+    except Exception:
+        pass
 
 
 def _market_open() -> bool:
@@ -47,13 +71,20 @@ def main() -> int:
     status_only = "--status-only" in sys.argv
     fill = (not status_only) and os.environ.get("EDGELAB_ALPACA_FILL", "0") == "1"
 
-    # Skip when closed (no spam). Status cron runs post-open so it still reports.
+    # Skip when closed (no spam) but still heartbeat so the dashboard knows
+    # the watcher is alive and why nothing is happening.
     if not _market_open():
+        _write_state({"market_open": False, "status": "closed",
+                      "note": "US market closed — watcher idle, no action"})
+        _log("closed — idle")
         return 0
 
     snap = alpaca.snapshot()
     if not snap.get("connected"):
         print("OVERWATCH: Alpaca not connected:", snap.get("reason"))
+        _write_state({"market_open": True, "connected": False,
+                      "reason": snap.get("reason")})
+        _log(f"not connected: {snap.get('reason')}")
         return 0
 
     # live H5 signal (cached feed; monthly signal doesn't need force refresh)
@@ -84,6 +115,12 @@ def main() -> int:
     if breach:
         lines.append(f"  *** DD BREACH ({dd_pct:.2f}% <= -{DD_CAP_PCT}%) — HALT, no trades, alert ***")
         print("\n".join(lines))
+        _write_state({"market_open": True, "connected": True, "dd_breach": True,
+                      "dd_pct": round(dd_pct, 2), "dd_cap": DD_CAP_PCT,
+                      "portfolio_value": pv, "unrealized_pl": upl,
+                      "signal": sorted(desired), "held": sorted(held),
+                      "status": "HALTED (DD breach)"})
+        _log(f"BREACH dd={dd_pct:.2f}% — halted")
         return 0
 
     # ---- rebalance ----
@@ -92,12 +129,25 @@ def main() -> int:
     if not sell_list and not buy_list:
         lines.append("  in balance — no action")
         print("\n".join(lines))
+        _write_state({"market_open": True, "connected": True, "dd_breach": False,
+                      "dd_pct": round(dd_pct, 2), "dd_cap": DD_CAP_PCT,
+                      "portfolio_value": pv, "unrealized_pl": upl,
+                      "signal": sorted(desired), "held": sorted(held),
+                      "status": "in balance — no action", "mode": "trade" if fill else "read-only"})
+        _log("in balance — no action")
         return 0
 
     lines.append(f"  rebalance: sell={sell_list} buy={buy_list}")
     if not fill:
         lines.append("  [READ-ONLY] set EDGELAB_ALPACA_FILL=1 to execute")
         print("\n".join(lines))
+        _write_state({"market_open": True, "connected": True, "dd_breach": False,
+                      "dd_pct": round(dd_pct, 2), "dd_cap": DD_CAP_PCT,
+                      "portfolio_value": pv, "unrealized_pl": upl,
+                      "signal": sorted(desired), "held": sorted(held),
+                      "status": "rebalance pending (read-only)", "mode": "read-only",
+                      "rebalance": {"sell": sell_list, "buy": buy_list}})
+        _log(f"rebalance pending (read-only): sell={sell_list} buy={buy_list}")
         return 0
 
     # execute (paper)
@@ -112,6 +162,13 @@ def main() -> int:
         res = alpaca.place_paper_order(s, qty, "buy")
         lines.append(f"  BUY {s} {qty} @~{px:.2f} {res}")
     print("\n".join(lines))
+    _write_state({"market_open": True, "connected": True, "dd_breach": False,
+                  "dd_pct": round(dd_pct, 2), "dd_cap": DD_CAP_PCT,
+                  "portfolio_value": pv, "unrealized_pl": upl,
+                  "signal": sorted(desired), "held": sorted(desired),
+                  "status": "rebalanced", "mode": "trade",
+                  "rebalance": {"sell": sell_list, "buy": buy_list}})
+    _log(f"rebalanced: sell={sell_list} buy={buy_list}")
     return 0
 
 
