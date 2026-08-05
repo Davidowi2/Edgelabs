@@ -108,10 +108,14 @@ for detail + honest caveats. Summary of deviations from this document to review:
   `CLRTYFX#D#2329061` (DEMO, `#D#` marker). A read-only connector is verified
   live (`demo.tradelocker.com/backend-api`, `server=CLRTYFX`, `accNum` header).
   It places NO orders. Within the "no live trading / no live broker" lock.
-- **Stage 2 (paper fills)** capability (`place_demo_order`) PROVEN live on the
-  Clarity FX demo (2026-08-04): 0.01 EURUSD filled + closed, account left flat.
-  Gated behind `EDGELAB_DEMO_FILL=1` + confirmed DEMO; never touches live. Auto-exec
-  still disabled (no scheduled trading). H5 forward-test needs an equities demo.
+- **Stage 2b (H5 equities forward-test) LIVE on Alpaca paper (2026-08-05):**
+  `edgelab/broker/alpaca.py` (read-only snapshot + `place_paper_order` gated by
+  `EDGELAB_ALPACA_FILL=1`, paper-host-only, refuses live) + `scripts/run_h5_forwardtest.py`
+  (fetches live H5 universe, computes `current_signal`, places equal-weight paper
+  MARKET orders). First run placed XLE/XLK/XLV (~$33k each, fractional) as paper
+  orders; queued `new` pre-market, capital reserved (~$100k BP held), fills at
+  09:30 ET open. This is the first OOS market test of the proven H5 edge. No live
+  capital; Alpaca live host (`api.alpaca.markets`) is hard-refused by the connector.
 - **Data source** expanded beyond Dukascopy: `MarketDataFeed` uses yfinance
   (equities/ETFs/FX) + ccxt (crypto), cached to CSV — reproducible.
 - **H5** is the only proven edge; validated on ~2y daily (shorter than the 5y

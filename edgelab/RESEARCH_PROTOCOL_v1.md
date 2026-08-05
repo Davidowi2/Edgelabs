@@ -147,10 +147,6 @@ Roadmap P1–P5 executed and verified by Hermes (no live capital this session).
 - **H7** (G10 FX carry, 12M price-return proxy) **RETIRED** — PF 0.74, MC 7.3%,
   DD 9.17%. Genuine failure, not tuned. H8 drafted (true rate-differential carry,
   blocked on FRED package/key).
-- **Read-only DEMO connector** exists but places NO orders by default. A gated
-  `place_demo_order()` (Stage 2 paper fills) is present, OFF by default
-  (`EDGELAB_DEMO_FILL` unset), and not wired to auto-execute. This is within the
-  Phase 0 "no live trading / no live broker" lock (read-only demo only).
 - **Stage 2 PROVEN (2026-08-04):** with `EDGELAB_DEMO_FILL=1` + confirmed DEMO
   account, `place_demo_order()` places real paper orders via
   `POST /trade/accounts/{id}/orders` (resolves symbol->instrumentId->TRADE
@@ -160,5 +156,13 @@ Roadmap P1–P5 executed and verified by Hermes (no live capital this session).
   left FLAT. **Caveat:** the demo is a FOREX account, so Stage 2 proves the ORDER
   PIPELINE works on FX — it is NOT a forward-test of H5 (equity ETFs), which needs
   an equities demo account. No live capital; `EDGELAB_LIVE_EXEC=1` still unset.
+- **Stage 2b — H5 equities forward-test LIVE (2026-08-05):** user provided an
+  Alpaca PAPER account (`paper-api.alpaca.markets`, account PA34OUY8PRVR,
+  $100k). `edgelab/broker/alpaca.py` + `scripts/run_h5_forwardtest.py` placed the
+  current H5 basket (XLE/XLK/XLV, ~$33k each, fractional paper MARKET orders) with
+  `EDGELAB_ALPACA_FILL=1`. Orders queued pre-market (`new`, ~$100k BP reserved),
+  fill at 09:30 ET open. This is the first OOS market test of the proven H5 edge
+  (PF 1.39). Connector hard-refuses the Alpaca LIVE host. Creds in session env
+  only. No live capital.
 - No live capital deployed; executor remains gated behind `EDGELAB_LIVE_EXEC=1`
   (unset).
