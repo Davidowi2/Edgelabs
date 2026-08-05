@@ -70,13 +70,27 @@ def _market_open() -> bool:
 def main() -> int:
     status_only = "--status-only" in sys.argv
     fill = (not status_only) and os.environ.get("EDGELAB_ALPACA_FILL", "0") == "1"
+    upl = 0.0
+    dd_pct = 0.0
 
     # Skip when closed (no spam) but still heartbeat so the dashboard knows
-    # the watcher is alive and why nothing is happening.
+    # the watcher is alive and why nothing is happening. Capture last-known
+    # portfolio value so the P&L/DD cards stay populated after hours.
     if not _market_open():
-        _write_state({"market_open": False, "status": "closed",
+        last = {}
+        try:
+            ls = alpaca.snapshot()
+            if ls.get("connected"):
+                pv = float(ls.get("portfolio_value") or INITIAL_EQUITY)
+                last_upl = pv - INITIAL_EQUITY
+                last = {"portfolio_value": pv, "unrealized_pl": round(last_upl, 2),
+                        "dd_pct": round((last_upl / INITIAL_EQUITY) * 100, 2),
+                        "connected": True}
+        except Exception:
+            pass
+        _write_state({"market_open": False, "status": "closed", **last,
                       "note": "US market closed — watcher idle, no action"})
-        _log("closed — idle")
+        _log("closed — idle" + (f" pv={last.get('portfolio_value')}" if last else ""))
         return 0
 
     snap = alpaca.snapshot()
@@ -103,7 +117,9 @@ def main() -> int:
     pv = float(snap.get("portfolio_value") or INITIAL_EQUITY)
 
     # ---- DD gate ----
-    upl = sum(float(p.get("unrealized_pl") or 0) for p in positions)
+    # Alpaca position objects don't return an `unrealized_pl` field, so derive
+    # the true account P&L from portfolio value vs the $100k paper start.
+    upl = pv - INITIAL_EQUITY
     dd_pct = (upl / INITIAL_EQUITY) * 100 if INITIAL_EQUITY else 0.0
     breach = dd_pct <= -DD_CAP_PCT
 
