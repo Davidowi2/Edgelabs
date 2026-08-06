@@ -85,6 +85,32 @@ tweaked entry cosmetics; v3 changed the bias to an EMA50 trend filter.
   new carry design (e.g. EM carry, vol-targeted, or a live FRED rate series with a
   cost model). Casual retesting is not allowed.
 
+## HYP-009 — Cross-Sectional Momentum on FX + Crypto (learned from H5)
+- **test_stage:** canonical basket backtest (same engine as H5) on G10 FX (2y) + top-10 crypto (3y).
+- **failure_reason:** H5's mechanism transferred only PARTIALLY. It fixed the two
+  specific prior failure modes (FX now fires regularly; crypto is a broad
+  cross-sectional book, not single-BTC) — but the underlying asset classes do not
+  behave like liquid equity ETFs.
+- **metric_values:**
+  - H9-FX (long top-3 / short bottom-3 momentum): trades=138, win=47.1%, PF=0.75,
+    Sharpe=-0.53, maxDD=9.07%, MC=8.3% (FAIL — no monthly momentum edge in G10 FX).
+  - H9-Crypto (long top-3 of 10): trades=195, win=49.2%, PF=1.06, Sharpe=0.08,
+    maxDD=78.89%, ret=+173%, MC=59.0% (FAIL — catastrophic drawdown vs 4% bar).
+  - Bar: PF>1.2 / Sharpe>0.5 / MC>=70% / DD<4% / OOS>=30. New OOS gate PASSED for
+    both (138 / 195 trades) — correctly proves they are NOT inert (gold) and NOT
+    IS-only mirages (H4). The gate works as designed.
+- **lessons_learned:**
+  - Cross-sectional monthly momentum is a property of LIQUID EQUITY ETFs, not a
+    universal law. G10 FX is too mean-reverting at monthly horizon to trend; crypto
+    trends but with drawdowns (79%) incompatible with capital preservation.
+  - The learned-design approach was correct process: H9 isolated exactly WHY prior
+    attempts failed and targeted those modes. It still failed on asset-class fit —
+    which is an honest, final answer, not a tuning target.
+  - The new OOS-trade-count gate is now a permanent REQUIRED check (see protocol).
+- **retest_eligibility:** CLOSED. If revisited, must change asset-class suitability
+  (e.g. crypto with vol-targeting + much tighter DD control, or a different FX
+  signal), not just re-tune momentum. Do not re-run H9 as-is.
+
 ---
 
 ## Status summary

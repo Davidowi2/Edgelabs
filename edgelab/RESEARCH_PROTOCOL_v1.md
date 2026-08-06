@@ -74,6 +74,7 @@ Every hypothesis must pass every check before it moves to Phase 3 forward testin
 | Monte Carlo minimum profitable percentage | 70% |
 | Realistic costs | spread + slippage + commission + swap |
 | Max backtest drawdown | less than 4% |
+| Out-of-sample trade count | >= 30 trades OOS (anti-inertia / anti-IS-mirage gate) |
 | Trade frequency compatibility | compatible with active-day rule |
 
 ### Interpretation Rules
@@ -82,6 +83,7 @@ Every hypothesis must pass every check before it moves to Phase 3 forward testin
 - Walk-forward must re-optimize or revalidate every 3 months.
 - Monte Carlo is evaluated on percentage of profitable simulations, not average profit.
 - Backtest drawdown is compared against the internal 5% total drawdown lock, with an additional 1% buffer requirement at 4%.
+- **OOS trade-count gate (added 2026-08-06):** a strategy must record >= 30 out-of-sample trades to qualify. This blocks two failure modes we actually hit: (a) INERT strategies that never fire (Gold H2/H3: 0/1/40 trades) and (b) IS-only mirages that look great in-sample but trade zero times OOS (Crypto H4: IS PF 2.73, OOS 0 trades). A strategy that does not trade cannot have an edge.
 
 ## Retirement Rules
 
@@ -145,8 +147,22 @@ Roadmap P1–P5 executed and verified by Hermes (no live capital this session).
   requires human review.
 - **H6** (crypto 4h) is risk-capped (fails 200-trade & 4% DD bars); not promoted.
 - **H7** (G10 FX carry, 12M price-return proxy) **RETIRED** — PF 0.74, MC 7.3%,
-  DD 9.17%. Genuine failure, not tuned. H8 drafted (true rate-differential carry,
-  blocked on FRED package/key).
+  DD 9.17%. Genuine failure, not tuned.
+- **H8** (G10 FX carry, real rate-differential) **RETIRED** — v0 marginal fail
+  (PF 1.11, MC 69.6%); v1 (time-varying rates + vol-scale) clear fail, worse
+  (PF 1.03, Sharpe 0.06, DD 5.08%, MC 54.2%). No FX carry edge in 2024-26 cuts.
+- **H2/H3** (Gold XAUUSD H4 structure-pullback v1/v2/v3) **RETIRED** — INERT:
+  0/1/40 trades across 2y. Over-filtered, no fundamental anchor.
+- **H4** (Crypto BTC daily breakout) **RETIRED** — IS PF 2.73 but OOS 0 trades
+  (regime break / IS mirage). Confirmed by new OOS-trade-count gate.
+- **H9** (Cross-Sectional Momentum on FX+Crypto, learned from H5) **RETIRED** —
+  H9-FX PF 0.75 / DD 9.07% / MC 8.3% (no monthly FX momentum edge); H9-Crypto
+  PF 1.06 / DD 78.89% (catastrophic drawdown vs 4% bar). Mechanism transferred
+  partially (both now fire + clear OOS gate) but asset classes don't behave like
+  equity ETFs. Confirms H5's edge is specific to equities, not portable to FX/crypto.
+- **Conclusion (2026-08-06):** H5 (equity cross-sectional momentum) is the ONLY
+  proven strategy. Every FX/gold/crypto attempt failed — on regime (H7/H8), inertia
+  (H2/H3), IS-mirage (H4), or DD/edge (H9). New OOS-trade-count gate now REQUIRED.
 - **Stage 2 PROVEN (2026-08-04):** with `EDGELAB_DEMO_FILL=1` + confirmed DEMO
   account, `place_demo_order()` places real paper orders via
   `POST /trade/accounts/{id}/orders` (resolves symbol->instrumentId->TRADE

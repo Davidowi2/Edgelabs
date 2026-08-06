@@ -1,0 +1,56 @@
+hypothesis_id: "HYP-009"
+version: "1.0"
+created_at: "2026-08-06"
+status: "retired"  # learned design (H5 mechanism on FX+crypto) — failed the bar
+author: "Hermes"
+
+name: "Cross-Sectional Momentum on TradeLocker assets (FX + Crypto)"
+instrument: ["G10 FX pairs", "Top-10 crypto (BTC/ETH/BNB/SOL/XRP/ADA/DOGE/AVAX/DOT/LINK)"]
+timeframe: "daily -> monthly rebalance"
+data: "FX via yfinance (2y); crypto via ccxt (3y)"
+
+claim: >
+  The EXACT proven H5 mechanism (12-1 cross-sectional momentum, monthly rebalance,
+  equal-weight) transfers to TradeLocker-tradable FX and crypto, because H5 survived
+  where absolute bets (H7/H8) and single-name strategies (gold, H4) failed.
+
+rationale: >
+  LEARNED DESIGN. H7/H8 died on absolute rate-regime bets; gold was inert (0/1/40
+  trades); crypto H4 was an IS mirage (OOS 0 trades). H5 worked because it is
+  cross-sectional, broad, monthly, direction-agnostic. H9 ports that recipe to FX
+  (long top-3 / short bottom-3 momentum) and crypto (long top-3 of 10). Intended to
+  inherit H5's regime-robustness.
+
+entry_rules:
+  - "12-1 momentum = return from t-12 to t-1 month-end."
+  - "FX: long top-3 highest-momentum pairs, short bottom-3 lowest (direction-agnostic)."
+  - "Crypto: long top-3 of 10 coins (long-only; most not shortable on paper)."
+  - "Equal weight across legs; hold 1 month; rebalance monthly."
+
+exit_rules:
+  - "Monthly rebalance (exit entire book, re-enter new basket)."
+
+stop_rules:
+  - "Portfolio-level 4% drawdown halt (repo hard gate)."
+
+strategy_family: "cross-sectional-momentum"
+tags: ["fx", "crypto", "momentum", "monthly", "learned-from-h5"]
+
+required_tests: ["canonical_backtest", "is_oos_split", "monte_carlo", "oos_trade_count_gate"]
+
+evidence:
+  - "H9-FX: trades=138 win=47.1% PF=0.75 Sharpe=-0.53 maxDD=9.07% MC=8.3% (FAIL). Cross-sectional momentum on G10 FX has no monthly edge; FX is too mean-reverting at this horizon."
+  - "H9-Crypto: trades=195 win=49.2% PF=1.06 Sharpe=0.08 maxDD=78.89% ret=+173% MC=59.0% (FAIL). Mechanism fires (fixes H4 single-name problem) but DD=79% is catastrophic vs 4% bar."
+  - "New OOS-trade-count gate (>=30) PASSED for both -> correctly flags they are NOT inert (unlike gold) and NOT IS-only mirages (unlike H4). The gate works."
+  - "Bar: PF>1.2 / Sharpe>0.5 / MC>=70% / DD<4% / OOS>=30 trades. FX fails all; crypto fails DD (79% >> 4%) + Sharpe + MC."
+
+reviewed_by: ""
+retired_reason: >
+  Retired honestly per RESEARCH_PROTOCOL_v1. The H5 mechanism transferred only
+  partially: it fixed the SPECIFIC prior failure modes (FX now fires regularly;
+  crypto is a broad cross-sectional book, not single-BTC), but the underlying asset
+  classes do not behave like liquid equity ETFs -- G10 FX has no monthly momentum
+  edge, and crypto's drawdown (79%) is incompatible with the 4% capital-preservation
+  bar. No tuning-to-pass. Confirms H5's edge is specific to equity ETFs, not portable
+  to FX/crypto at monthly horizon.
+next_action: "CLOSED. If revisited, must change asset-class suitability (e.g. crypto with vol-targeting + much tighter DD control, or a different FX signal), not just re-tune momentum. Note the OOS-trade-count gate is now REQUIRED for all future hypotheses."
