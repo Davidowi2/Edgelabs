@@ -34,18 +34,33 @@ cross-sectional momentum) into a system that is (a) more active than monthly-onl
 - **Crisis filter:** step TSMOM sleeve to cash/hedge when broad trend breaks.
 
 ## Honest caveats
-- TSMOM on crypto/FX still failed on OUR data (H9) — so the TSMOM sleeve must be
+- **TSMOM on crypto/FX still failed on OUR data (H9)** — so the TSMOM sleeve must be
   validated on its OWN cross-asset data with the OOS-trade-count gate before promotion.
   We do NOT assume it transfers; we test it the same honest bar.
+
+## Sleeve 1 first result — H5 vol-targeted (2026-08-06, honest backtest)
+Ran `edgelab/strategy/h5_voltarget.py` vs raw H5 on FULL 5y + OOS 1y (11 ETFs):
+- RAW H5 FULL: maxDD=53.06% PF=1.54 Sharpe=0.55 MC=100%
+- VT  H5 FULL: maxDD=39.71% PF=1.58 Sharpe=0.59 MC=100%  (DD −25%, edge holds)
+- RAW H5 OOS:  maxDD=14.90% PF=1.37 Sharpe=0.53 MC=94%
+- VT  H5 OOS:  maxDD=11.62% PF=1.37 Sharpe=0.52 MC=94%  (DD −22%, edge holds)
+
+**Verdict: vol-targeting works as literature says (cuts DD, keeps edge) but only takes
+H5 from 53%→40% DD — still not a "survive-the-market" level.** Root cause: H5 is
+long-only, fully-invested, monthly — vol-scaling can't remove a structural equity-crash
+drawdown. So Sleeve 1 = slightly safer core; the real survival comes from the OTHER
+sleeves (TSMOM crisis-alpha + risk-parity + daily risk control), NOT from tweaking H5
+alone. No tuning-to-pass; this is the honest measured number.
 - Vol-targeting changes H5's risk profile; must re-validate H5-VolTargeted through the
   full 5y bar + OOS gate (not just assert it works).
 - This is a DESIGN grounded in literature + our own failure record. It is NOT yet
   coded or proven. Next step = prototype + honest backtest, one sleeve at a time.
 
-## Blocker (cannot complete catalog step)
-- User asked to also "catalog my other private repos for prior quant code to port."
-  Those repos (alma-model-zero, trovi, dot-platform, llll, sentinelehr-marketing) are
-  NOT cloned locally; `gh` CLI is NOT installed; no GITHUB_TOKEN in env.
-  => This step is BLOCKED pending: (a) install gh + auth, or (b) user clones repos locally.
-  Will NOT fake-catalog. Everything above is grounded in public literature + our own
-  committed results (HYP-005 5y, H9/H2/H4/H7/H8 retirements).
+## Repo-catalog step — DROPPED (user clarification 2026-08-06)
+- User clarified: do NOT clone/catalog the private repos (alma-model-zero, trovi,
+  dot-platform, llll, sentinelehr-marketing) — nothing relevant there. The earlier
+  "blocker" is moot. If AGENT-side knowledge gaps arise, public GitHub / skills
+  (arxiv, quant-backtest-engineering, trading-system-audit) are the source, not the
+  user's repos. This design rests on public literature + our own committed results
+  (HYP-005 5y, H9/H2/H4/H7/H8 retirements). Proceed.
+
