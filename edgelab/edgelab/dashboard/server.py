@@ -335,6 +335,23 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/alpaca":
             self._send(200, json.dumps(alpaca_state()).encode())
             return
+        if self.path == "/api/narrative":
+            try:
+                from edgelab.dashboard.narrative import narrative_payload
+                live = None
+                if os.environ.get("APCA_API_KEY_ID"):
+                    try:
+                        from edgelab.broker import alpaca as _ap
+                        live = _ap.snapshot()
+                    except Exception:
+                        live = None
+                self._send(200, json.dumps(narrative_payload(live)).encode())
+            except Exception as e:
+                self._send(200, json.dumps({"error": str(e)}).encode())
+            return
+        if self.path == "/api/health":
+            self._send(200, json.dumps({"ok": True, "ts": datetime.now(timezone.utc).isoformat()}).encode())
+            return
         self._send(404, b'{"error":"not found"}')
 
     def do_POST(self):

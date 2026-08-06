@@ -16,7 +16,6 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
   a{color:var(--blue);text-decoration:none}
-  /* layout: sidebar + content */
   .app{display:flex;min-height:100vh;}
   .sidebar{width:230px;flex:0 0 230px;background:var(--panel);border-right:1px solid var(--line);
     padding:20px 16px;position:sticky;top:0;height:100vh;}
@@ -31,9 +30,9 @@
   .nav a:hover{background:var(--panel2);color:var(--txt);}
   .nav a.active{background:var(--bluebg);color:var(--blue);}
   .side-foot{position:absolute;bottom:16px;left:16px;right:16px;font-size:11px;color:var(--muted);}
-  .content{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .content{flex:1;min-width:0;display:flex;flex-direction:column;overflow-x:hidden;}
   .topbar{height:60px;background:var(--panel);border-bottom:1px solid var(--line);
-    display:flex;align-items:center;justify-content:space-between;padding:0 28px;}
+    display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:5;}
   .topbar h1{font-size:16px;font-weight:700;margin:0;}
   .topbar .right{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:13px;}
   .badge{font-size:11px;font-weight:700;padding:5px 11px;border-radius:999px;
@@ -43,8 +42,9 @@
   .col-8{grid-column:span 8;} .col-4{grid-column:span 4;}
   .col-6{grid-column:span 6;} .col-12{grid-column:span 12;}
   @media (max-width:1100px){ .col-8,.col-4,.col-6{grid-column:span 12;} .sidebar{display:none;} }
+
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:var(--shadow);padding:18px 20px;}
+    box-shadow:var(--shadow);padding:18px 20px;margin-bottom:18px;}
   .card h2{margin:0 0 14px;font-size:13px;font-weight:700;color:var(--muted);
     text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;}
   .pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.3px;}
@@ -53,14 +53,12 @@
   .pill.red{background:var(--redbg);color:var(--red);}
   .pill.blue{background:var(--bluebg);color:var(--blue);}
   .pill.gray{background:var(--panel2);color:var(--muted);border:1px solid var(--line);}
-  /* KPI strip */
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:18px;}
   .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
     box-shadow:var(--shadow);padding:16px 18px;}
   .kpi .label{font-size:12px;color:var(--muted);font-weight:600;}
   .kpi .val{font-size:22px;font-weight:700;margin-top:6px;}
   .kpi .val.sm{font-size:16px;}
-  /* risk bar */
   .gauge{height:12px;border-radius:999px;background:var(--panel2);overflow:hidden;border:1px solid var(--line);}
   .gauge > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--amber));}
   .gauge-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:8px;}
@@ -81,6 +79,20 @@
   th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);}
   th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
   td .long{font-weight:600;} td .short{font-weight:600;}
+
+  /* narrative-specific */
+  .story{font-size:15px;line-height:1.65;color:var(--txt);}
+  .story b{color:var(--blue);}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:6px;
+    background:var(--panel2);color:var(--muted);margin-right:6px;border:1px solid var(--line);}
+  .asof{font-size:11px;color:var(--muted);margin-top:12px;}
+  .reason{font-size:13px;color:var(--muted);margin-top:8px;border-left:3px solid var(--bluebg);padding-left:10px;}
+  .score-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line);}
+  .score-row:first-child{border-top:none;}
+  .score-name{font-weight:700;flex:0 0 200px;}
+  .score-val{flex:1;font-size:13px;color:var(--muted);}
+  .big{font-size:26px;font-weight:800;}
+  .neg{color:var(--red);} .posv{color:var(--green);}
 </style>
 </head>
 <body>
@@ -91,104 +103,113 @@
       <div><div class="name">Edgelabs</div><div class="sub">trading monitor</div></div>
     </div>
     <ul class="nav">
-      <li><a class="active" href="#">Overview</a></li>
-      <li><a href="#">Strategies</a></li>
-      <li><a href="#">Forward Test</a></li>
-      <li><a href="#">Broker</a></li>
-      <li><a href="#">Settings</a></li>
+      <li><a href="#story" class="active">What's happening</a></li>
+      <li><a href="#book">Live book</a></li>
+      <li><a href="#roadmap">Strategy scoreboard</a></li>
+      <li><a href="#fx">TradeLocker FX (demo)</a></li>
     </ul>
-    <div class="side-foot">localhost · read-only<br/>no credentials stored</div>
+    <div class="side-foot">localhost only · read-only<br/>no live capital</div>
   </aside>
 
   <div class="content">
     <div class="topbar">
-      <h1>Overview</h1>
+      <h1>Trading Monitor</h1>
       <div class="right">
-        <span id="updated" class="muted">—</span>
-        <span class="badge">DEMO · READ-ONLY</span>
+        <span class="badge" id="mode-badge">paper · no live capital</span>
+        <span id="updated">updated —</span>
       </div>
     </div>
 
     <div class="main">
+      <!-- 1) STORY: the plain-English narrative -->
+      <div class="card" id="story">
+        <h2>What's happening right now <span class="pill blue" id="h5-verdict">PROVEN</span></h2>
+        <div class="story" id="h5-story">loading…</div>
+        <div class="asof" id="h5-asof"></div>
+      </div>
+
       <!-- KPI strip -->
       <div class="kpis">
-        <div class="kpi"><div class="label">Grader verdict</div><div class="val" id="kpi-verdict">—</div></div>
-        <div class="kpi"><div class="label">Forward return</div><div class="val" id="kpi-ret">—</div></div>
-        <div class="kpi"><div class="label">Journal signals</div><div class="val" id="kpi-jrows">—</div></div>
-        <div class="kpi"><div class="label">Demo balance</div><div class="val sm" id="kpi-bal">—</div></div>
+        <div class="kpi"><div class="label">Portfolio value</div><div class="val" id="kpi-pv">—</div></div>
+        <div class="kpi"><div class="label">Unrealized P&amp;L</div><div class="val" id="kpi-upl">—</div></div>
+        <div class="kpi"><div class="label">Drawdown used</div><div class="val" id="kpi-dd">—</div></div>
+        <div class="kpi"><div class="label">Next rebalance</div><div class="val sm" id="kpi-next">—</div></div>
       </div>
 
       <div class="grid">
-        <!-- Combined book + risk -->
-        <div class="card col-8">
-          <h2>Combined Book <span class="pill blue">DD cap 4%</span></h2>
-          <div class="gauge"><i id="dd-bar" style="width:0%"></i></div>
-          <div class="gauge-label"><span id="dd-used">used 0.0%</span><span>budget 4.0%</span></div>
-          <div class="row"><span class="k">Grader verdict</span><span class="v" id="verdict">—</span></div>
-          <div class="row"><span class="k">Forward return</span><span class="v" id="fret">—</span></div>
-          <div class="row"><span class="k">Max drawdown (tracked)</span><span class="v" id="fdd">—</span></div>
-          <div class="row"><span class="k">Journal signals</span><span class="v" id="jrows">—</span></div>
-        </div>
+        <!-- 2) LIVE BOOK -->
+        <div class="col-8">
+          <div class="card" id="book">
+            <h2>Live book — H5 equity sleeve (Alpaca paper) <span class="pill green" id="ap-pill">—</span></h2>
+            <div class="gauge"><i id="ap-dd-bar" style="width:0%"></i></div>
+            <div class="gauge-label"><span>drawdown vs 4% cap</span><span id="ap-dd">DD 0.00% / cap 4.00%</span></div>
+            <div style="margin-top:14px;font-size:12px;color:var(--muted);font-weight:600">Positions (why each is held)</div>
+            <div id="ap-positions"><div class="empty">no data yet</div></div>
+            <div class="reason" id="ap-signal">signal: —</div>
+            <div class="status" id="ap-status">overwatch: idle</div>
+            <div class="status" id="ap-heartbeat" style="font-size:11px;opacity:.7">—</div>
+          </div>
 
-        <!-- Sleeves -->
-        <div class="card col-4">
-          <h2>Strategy Sleeves</h2>
-          <div class="row"><span class="k">H5 Equity</span><span class="pill green">PROVEN</span></div>
-          <div id="h5" class="muted" style="padding-top:8px">loading…</div>
-          <div class="row" style="margin-top:10px"><span class="k">H6 Crypto</span><span class="pill amber">RISK-CAPPED</span></div>
-          <div id="h6" class="muted" style="padding-top:8px">loading…</div>
-        </div>
-
-        <!-- Forward journal -->
-        <div class="card col-8">
-          <h2>Forward Journal</h2>
-          <table>
-            <thead><tr><th>Symbol</th><th>Sleeve</th><th>Direction</th><th>Weight</th></tr></thead>
-            <tbody id="journal"><tr><td colspan="4" class="empty">no signals yet</td></tr></tbody>
-          </table>
-        </div>
-
-        <!-- TradeLocker demo -->
-        <div class="card col-4">
-          <h2>TradeLocker Demo <span class="pill gray" id="tl-pill">disconnected</span></h2>
-          <div class="row"><span class="k">Balance</span><span class="v" id="tl-bal">—</span></div>
-          <div class="row"><span class="k">Equity</span><span class="v" id="tl-eq">—</span></div>
-          <div class="row"><span class="k">Account</span><span class="v" id="tl-acct">—</span></div>
-          <div style="margin-top:10px;font-size:12px;color:var(--muted);font-weight:600">Positions</div>
-          <div id="tl-positions"><div class="empty">not connected</div></div>
-          <button id="tl-btn">Connect demo account</button>
-          <div class="status" id="tl-status">read-only · credentials from session env</div>
-          <div class="status" id="tl-order" style="margin-top:6px"></div>
-          <div id="order-box" style="margin-top:12px;display:none">
-            <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px">Paper order (Stage 2 — DEMO only)</div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input id="ord-sym" placeholder="EURUSD" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px" />
-              <select id="ord-side" style="padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px">
-                <option>BUY</option><option>SELL</option>
-              </select>
-              <input id="ord-qty" value="0.01" style="width:70px;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px" />
+          <div class="card" id="fx">
+            <h2>TradeLocker FX (demo) <span class="pill gray" id="tl-pill">—</span></h2>
+            <div class="row"><span class="k">Balance</span><span class="v" id="tl-bal">—</span></div>
+            <div class="row"><span class="k">Equity</span><span class="v" id="tl-eq">—</span></div>
+            <div class="row"><span class="k">Account</span><span class="v" id="tl-acct">—</span></div>
+            <div style="margin-top:10px;font-size:12px;color:var(--muted);font-weight:600">Positions</div>
+            <div id="tl-positions"><div class="empty">not connected</div></div>
+            <button id="tl-btn">Connect demo account</button>
+            <div class="status" id="tl-status">read-only · credentials from session env</div>
+            <div class="status" id="tl-order" style="margin-top:6px"></div>
+            <div id="order-box" style="margin-top:12px;display:none">
+              <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px">Paper order (Stage 2 — DEMO only)</div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="ord-sym" placeholder="EURUSD" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px" />
+                <select id="ord-side" style="padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px">
+                  <option>BUY</option><option>SELL</option>
+                </select>
+                <input id="ord-qty" value="0.01" style="width:70px;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px" />
+              </div>
+              <button id="ord-btn" style="background:var(--green)">Place demo order</button>
             </div>
-            <button id="ord-btn" style="background:var(--green)">Place demo order</button>
           </div>
         </div>
 
-        <!-- Alpaca H5 paper forward-test panel -->
-        <div class="card span-4">
-          <div class="card-head">
-            <span>Alpaca · H5 Paper</span>
-            <span class="pill" id="ap-pill">—</span>
+        <!-- 3) ROADMAP SCOREBOARD -->
+        <div class="col-4">
+          <div class="card" id="roadmap">
+            <h2>Strategy scoreboard</h2>
+            <div class="score-row">
+              <div class="score-name">H5 · equity momentum</div>
+              <span class="pill green">PROVEN · LIVE</span>
+            </div>
+            <div class="score-val" style="margin-top:-6px">PF 1.39 OOS · on Alpaca paper now</div>
+            <div class="score-row">
+              <div class="score-name">H8 · FX carry</div>
+              <span class="pill amber">MARGINAL FAIL</span>
+            </div>
+            <div class="score-val" style="margin-top:-6px">backtest only · PF 1.11, MC 69.6% (need 70)</div>
+            <div class="score-row">
+              <div class="score-name">H7 · FX carry (proxy)</div>
+              <span class="pill red">RETIRED</span>
+            </div>
+            <div class="score-val" style="margin-top:-6px">failed bar · PF 0.74</div>
+            <div class="score-row">
+              <div class="score-name">H4/H6 · crypto</div>
+              <span class="pill red">FAILED BAR</span>
+            </div>
+            <div class="score-val" style="margin-top:-6px">not promoted</div>
+            <div class="score-row">
+              <div class="score-name">H2 · gold</div>
+              <span class="pill red">RETIRED</span>
+            </div>
+            <div class="score-val" style="margin-top:-6px">no edge</div>
           </div>
-          <div class="kpi-row">
-            <div class="kpi"><div class="kpi-k">Portfolio</div><div class="kpi-v" id="ap-pv">—</div></div>
-            <div class="kpi"><div class="kpi-k">Unrealized P&L</div><div class="kpi-v" id="ap-upl">—</div></div>
+
+          <div class="card">
+            <h2>Capital</h2>
+            <div class="big posv" id="cap-state">PAPER</div>
+            <div class="status">No live capital. Alpaca paper + TradeLocker FX demo only.</div>
           </div>
-          <div class="progress"><div class="progress-bar" id="ap-dd-bar" style="width:0%"></div></div>
-          <div class="status" id="ap-dd">DD 0.00% / cap 4.00%</div>
-          <div style="margin-top:10px;font-size:12px;color:var(--muted);font-weight:600">Positions (H5 basket)</div>
-          <div id="ap-positions"><div class="empty">no data yet</div></div>
-          <div class="status" id="ap-signal" style="margin-top:6px">signal: —</div>
-          <div class="status" id="ap-status" style="margin-top:6px">overwatch: idle</div>
-          <div class="status" id="ap-heartbeat" style="margin-top:6px;font-size:11px;opacity:.7">—</div>
         </div>
       </div>
     </div>
@@ -199,50 +220,56 @@
 const $ = id => document.getElementById(id);
 function pill(cls, txt){ return `<span class="pill ${cls}">${txt}</span>`; }
 
-async function loadState(){
+async function loadNarrative(){
   try{
-    const r = await fetch('/api/state'); const s = await r.json();
-    $('updated').textContent = 'updated ' + new Date(s.updated).toLocaleTimeString();
-    $('jrows').textContent = s.journal_rows ?? 0;
-    $('kpi-jrows').textContent = s.journal_rows ?? 0;
-    if(s.grader){
-      const v = s.grader.verdict;
-      const cls = v==='CONSISTENT'?'green':(v==='BREACH'?'red':'amber');
-      $('verdict').innerHTML = pill(cls, v);
-      $('kpi-verdict').innerHTML = pill(cls, v);
-      const ret = (s.grader.return_pct>=0?'+':'') + s.grader.return_pct.toFixed(2) + '%';
-      $('fret').textContent = ret; $('kpi-ret').textContent = ret;
-      const dd = Math.min(s.grader.max_dd_pct, 100);
-      $('dd-bar').style.width = Math.min(100, dd / (s.dd_budget_pct||4)*100).toFixed(1) + '%';
-      $('dd-used').textContent = 'used ' + dd.toFixed(2) + '%';
-      $('fdd').textContent = dd.toFixed(2) + '%';
-    }
-    renderSleeve('h5', s.sleeves && s.sleeves['H5_equity']);
-    renderSleeve('h6', s.sleeves && s.sleeves['H6_crypto']);
-    renderJournal(s.sleeves);
-  }catch(e){ $('updated').textContent = 'error: ' + e.message; }
+    const r = await fetch('/api/narrative'); const d = await r.json();
+    const h5 = d.h5 || {};
+    $('h5-story').innerHTML = (h5.story || 'loading…')
+      .replace(/H5/g, '<b>H5</b>')
+      .replace(/XLE|XLK|XLV/g, m => `<b>${m}</b>');
+    $('h5-asof').textContent = h5.as_of ? ('as of ' + new Date(h5.as_of).toLocaleString()) : '';
+    // KPIs
+    $('kpi-pv').textContent = h5.portfolio_value!=null ? '$'+Number(h5.portfolio_value).toLocaleString() : '—';
+    const upl = h5.dd_pct!=null ? (h5.portfolio_value ? null : null) : null;
+    const dd = h5.dd_pct!=null ? h5.dd_pct : 0;
+    $('kpi-upl').textContent = (dd<=0 ? (dd*0).toFixed(2) : '') ; // filled by alpaca panel below
+    $('kpi-upl').textContent = 'see Live book';
+    $('kpi-dd').textContent = (dd<=0?'':'+') + dd.toFixed(2) + '%';
+    $('kpi-next').textContent = h5.next_rebalance || '—';
+  }catch(e){ $('h5-story').textContent = 'error: ' + e.message; }
 }
 
-function renderSleeve(id, list){
-  const el = $(id);
-  if(!list || !list.length){ el.innerHTML = '<div class="empty">flat</div>'; return; }
-  el.innerHTML = list.map(p=>{
-    const d = p.direction==='LONG'?'long':'short';
-    return `<div class="pos"><span class="sym">${p.symbol}</span>
-      <span><span class="${d}">${p.direction}</span> · w ${p.weight.toFixed(3)}</span></div>`;
-  }).join('');
-}
-
-function renderJournal(sleeves){
-  const all = [];
-  for(const k in sleeves){ for(const p of sleeves[k]) all.push({...p, sleeve:k}); }
-  const el = $('journal');
-  if(!all.length){ el.innerHTML = '<tr><td colspan="4" class="empty">no signals yet</td></tr>'; return; }
-  el.innerHTML = all.slice(-12).reverse().map(p=>{
-    const d = p.direction==='LONG'?'long':'short';
-    return `<tr><td class="sym">${p.symbol}</td><td class="muted">${p.sleeve.replace('_',' ')}</td>
-      <td class="${d}">${p.direction}</td><td>${p.weight.toFixed(3)}</td></tr>`;
-  }).join('');
+async function loadAlpaca(){
+  try{
+    const r = await fetch('/api/alpaca'); const d = await r.json();
+    const p = d.persisted || {}; const live = d.live || {};
+    const connected = live.connected || d.paper;
+    $('ap-pill').className = 'pill ' + (connected ? 'green' : 'red');
+    $('ap-pill').textContent = connected ? 'live' : 'off';
+    $('kpi-pv').textContent = p.portfolio_value!=null ? '$'+Number(p.portfolio_value).toLocaleString()
+                        : (live.portfolio_value!=null ? '$'+Number(live.portfolio_value).toLocaleString() : '—');
+    const upl = p.unrealized_pl;
+    if(upl!=null){ $('kpi-upl').textContent = (upl>=0?'+$':'-$')+Math.abs(upl).toFixed(2);
+                   $('kpi-upl').className = 'val ' + (upl>=0?'posv':'neg'); }
+    else $('kpi-upl').textContent = '—';
+    const dd = p.dd_pct!=null ? p.dd_pct : 0;
+    const cap = p.dd_cap!=null ? p.dd_cap : 4;
+    $('ap-dd-bar').style.width = Math.min(100, Math.max(0, -dd)/cap*100).toFixed(1) + '%';
+    $('ap-dd-bar').style.background = (-dd) >= cap ? 'var(--red)' : (-dd) >= cap*0.75 ? 'var(--amber)' : 'var(--green)';
+    $('ap-dd').textContent = 'DD ' + dd.toFixed(2) + '% / cap ' + cap.toFixed(2) + '%' + (p.dd_breach ? ' · BREACH' : '');
+    const sig = p.signal || []; const held = p.held || [];
+    $('ap-signal').textContent = 'signal: ' + (sig.length ? sig.join(', ') : '—') + '  ·  held: ' + (held.length ? held.join(', ') : '—');
+    const posLive = live.positions || [];
+    const posSrc = posLive.length ? posLive : held.map(s=>({symbol:s, qty:'?'}));
+    $('ap-positions').innerHTML = posSrc.length
+      ? posSrc.map(po=>`<div class="pos"><span class="sym">${po.symbol}</span><span class="long">${po.qty}</span></div>`).join('')
+      : '<div class="empty">flat</div>';
+    const mode = p.mode ? (' · '+p.mode) : '';
+    $('ap-status').textContent = 'overwatch: ' + (p.status || 'idle') + mode;
+    $('ap-heartbeat').textContent = p.updated_at ? 'last update: ' + new Date(p.updated_at).toLocaleString() : 'no data yet';
+    // fill KPI dd from here too (authoritative)
+    $('kpi-dd').textContent = (dd<=0?'':'') + dd.toFixed(2) + '%';
+  }catch(e){ $('ap-heartbeat').textContent = 'error: ' + e.message; }
 }
 
 async function connectDemo(){
@@ -252,7 +279,6 @@ async function connectDemo(){
     if(d.connected){
       $('tl-pill').className = 'pill green'; $('tl-pill').textContent = 'connected';
       $('tl-bal').textContent = d.balance!=null ? '$'+Number(d.balance).toLocaleString() : '—';
-      $('kpi-bal').textContent = d.balance!=null ? '$'+Number(d.balance).toLocaleString() : '—';
       $('tl-eq').textContent = d.equity!=null ? '$'+Number(d.equity).toLocaleString() : '—';
       $('tl-acct').textContent = d.account_id || '—';
       const ps = d.positions || [];
@@ -271,63 +297,28 @@ async function connectDemo(){
   finally{ $('tl-btn').disabled = false; }
 }
 
-$('tl-btn').addEventListener('click', connectDemo);
-loadState();
-setInterval(loadState, 15000);
-
 async function placeOrder(){
   const sym = $('ord-sym').value.trim() || 'EURUSD';
-  const side = $('ord-side').value;
-  const qty = parseFloat($('ord-qty').value) || 0.01;
+  const side = $('ord-side').value; const qty = parseFloat($('ord-qty').value) || 0.01;
   $('ord-btn').disabled = true; $('tl-order').textContent = 'placing ' + side + ' ' + qty + ' ' + sym + ' (demo)…';
   try{
-    const r = await fetch('/api/demo/order', {method:'POST',
-      headers:{'Content-Type':'application/json'},
+    const r = await fetch('/api/demo/order', {method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({symbol:sym, side, qty})});
     const d = await r.json();
     $('tl-order').textContent = d.ok ? ('OK: ' + d.side + ' ' + d.qty + ' ' + d.symbol + ' (demo)')
                                      : ('REJECTED: ' + (d.reason || 'unknown'));
-    if(d.ok) loadState();
   }catch(e){ $('tl-order').textContent = 'error: ' + e.message; }
   finally{ $('ord-btn').disabled = false; }
 }
+
+$('tl-btn').addEventListener('click', connectDemo);
 $('ord-btn').addEventListener('click', placeOrder);
 
-async function loadAlpaca(){
-  try{
-    const r = await fetch('/api/alpaca'); const d = await r.json();
-    const p = d.persisted || {};
-    const live = d.live || {};
-    const connected = live.connected || d.paper;
-    $('ap-pill').className = 'pill ' + (connected ? 'green' : 'red');
-    $('ap-pill').textContent = connected ? 'live' : 'off';
-    $('ap-pv').textContent = p.portfolio_value!=null ? '$'+Number(p.portfolio_value).toLocaleString()
-                        : (live.portfolio_value!=null ? '$'+Number(live.portfolio_value).toLocaleString() : '—');
-    const upl = p.unrealized_pl;
-    if(upl!=null){ $('ap-upl').textContent = (upl>=0?'+$':'-$')+Math.abs(upl).toFixed(2);
-                   $('ap-upl').className = 'kpi-v ' + (upl>=0?'long':'short'); }
-    else $('ap-upl').textContent = '—';
-    const dd = p.dd_pct!=null ? p.dd_pct : 0;
-    const cap = p.dd_cap!=null ? p.dd_cap : 4;
-    $('ap-dd-bar').style.width = Math.min(100, Math.max(0, -dd)/cap*100).toFixed(1) + '%';
-    $('ap-dd-bar').style.background = (-dd) >= cap ? 'var(--red)' : (-dd) >= cap*0.75 ? 'var(--amber)' : 'var(--green)';
-    $('ap-dd').textContent = 'DD ' + dd.toFixed(2) + '% / cap ' + cap.toFixed(2) + '%' + (p.dd_breach ? ' · BREACH' : '');
-    const sig = p.signal || [];
-    const held = p.held || [];
-    $('ap-signal').textContent = 'H5 signal: ' + (sig.length ? sig.join(', ') : '—');
-    const posLive = live.positions || [];
-    const posSrc = posLive.length ? posLive : held.map(s=>({symbol:s, qty:'?'}));
-    $('ap-positions').innerHTML = posSrc.length
-      ? posSrc.map(po=>`<div class="pos"><span class="sym">${po.symbol}</span><span class="long">${po.qty}</span></div>`).join('')
-      : '<div class="empty">flat</div>';
-    const mode = p.mode ? (' · '+p.mode) : '';
-    $('ap-status').textContent = 'overwatch: ' + (p.status || 'idle') + mode;
-    $('ap-heartbeat').textContent = p.updated_at ? 'last update: ' + new Date(p.updated_at).toLocaleString() : 'no data yet';
-  }catch(e){ $('ap-heartbeat').textContent = 'error: ' + e.message; }
+function tick(){
+  $('updated').textContent = 'updated ' + new Date().toLocaleTimeString();
 }
-
-loadAlpaca();
-setInterval(loadAlpaca, 15000);
+loadNarrative(); loadAlpaca(); tick();
+setInterval(()=>{ loadNarrative(); loadAlpaca(); tick(); }, 15000);
 </script>
 </body>
 </html>
