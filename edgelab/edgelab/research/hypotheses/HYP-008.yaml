@@ -1,0 +1,57 @@
+hypothesis_id: "HYP-008"
+version: "1.0"
+created_at: "2026-08-05"
+status: "testing"  # not_started | testing | passed | failed | retired
+author: "Hermes"
+
+name: "G10 FX Carry (real rate-differential, monthly rebalance)"
+instrument: ["AUDUSD", "NZDUSD", "GBPUSD", "EURUSD", "USDJPY", "USDCHF", "USDCAD"]
+timeframe: "daily -> monthly rebalance"
+data_start: "2024-08"
+data_end: "2026-08"
+
+claim: >
+  Holding the highest interest-rate-differential G10 FX pairs long and the lowest
+  short, equal-weight, rebalanced monthly, captures the textbook FX carry premium.
+
+rationale: >
+  FX carry is driven by policy-rate differentials. Unlike the retired H7 (which used
+  a 12M price-return proxy), H8 ranks pairs by the actual domestic-foreign rate
+  spread. v0 uses a STATIC rate snapshot; the documented upgrade path is a
+  time-varying rate series (FRED/Datastream).
+
+entry_rules:
+  - "Rank G10 pairs by (USD rate - foreign rate)."
+  - "Long top-3 highest carry, short bottom-3 lowest."
+  - "Equal weight; hold 1 month; rebalance monthly."
+
+exit_rules:
+  - "Monthly rebalance (exit entire book, re-enter new basket)."
+
+stop_rules:
+  - "Portfolio-level 4% drawdown halt (repo hard gate)."
+
+position_sizing: "Equal weight across 2N=6 legs; fractional paper orders."
+
+strategy_family: "fx-carry"
+tags: ["fx", "carry", "g10", "monthly"]
+
+required_tests:
+  - "in_sample_backtest"
+  - "out_of_sample_backtest"
+  - "walk_forward"
+  - "monte_carlo"
+  - "cost_realism"
+
+evidence:
+  - "scripts/run_h8_backtest.py :: trades=138 win=51.4% PF=1.11 Sharpe=0.34 maxDD=2.91% ret=2.24% RR=1.04 MC=69.6%(FAIL)"
+  - "Bar: PF>1.2 (got 1.11) FAIL; Sharpe>0.5 (got 0.34) FAIL; MC>=70% (got 69.6%) FAIL; DD<4% (got 2.91%) PASS"
+  - "vs retired H7 (price-proxy): PF 0.74 -> 1.11, DD 9.17% -> 2.91% — real rate signal is materially better."
+  - "Marginal fail: 0.4% short of MC bar, Sharpe 0.16 under. Static rate table is the weak link."
+
+reviewed_by: ""
+retired_reason: ""
+next_action: >
+  MARGINAL FAIL (not broken). Candidate for revision: (a) time-varying rate series
+  instead of static snapshot; (b) vol-scaled position sizing to lift Sharpe/MC.
+  Do NOT tune to pass. Re-run after revision. No capital until bar is cleared.
