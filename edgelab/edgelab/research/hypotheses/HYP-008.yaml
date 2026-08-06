@@ -1,7 +1,7 @@
 hypothesis_id: "HYP-008"
 version: "1.0"
 created_at: "2026-08-05"
-status: "testing"  # not_started | testing | passed | failed | retired
+status: "retired"  # not_started | testing | passed | failed | retired
 author: "Hermes"
 
 name: "G10 FX Carry (real rate-differential, monthly rebalance)"
@@ -15,10 +15,8 @@ claim: >
   short, equal-weight, rebalanced monthly, captures the textbook FX carry premium.
 
 rationale: >
-  FX carry is driven by policy-rate differentials. Unlike the retired H7 (which used
-  a 12M price-return proxy), H8 ranks pairs by the actual domestic-foreign rate
-  spread. v0 uses a STATIC rate snapshot; the documented upgrade path is a
-  time-varying rate series (FRED/Datastream).
+  FX carry is driven by policy-rate differentials. Ranks pairs by the actual
+  domestic-foreign rate spread (v0 static snapshot; v1 time-varying history).
 
 entry_rules:
   - "Rank G10 pairs by (USD rate - foreign rate)."
@@ -31,7 +29,7 @@ exit_rules:
 stop_rules:
   - "Portfolio-level 4% drawdown halt (repo hard gate)."
 
-position_sizing: "Equal weight across 2N=6 legs; fractional paper orders."
+position_sizing: "Equal weight across 2N=6 legs; v1 added inverse-vol scaling."
 
 strategy_family: "fx-carry"
 tags: ["fx", "carry", "g10", "monthly"]
@@ -44,14 +42,16 @@ required_tests:
   - "cost_realism"
 
 evidence:
-  - "scripts/run_h8_backtest.py :: trades=138 win=51.4% PF=1.11 Sharpe=0.34 maxDD=2.91% ret=2.24% RR=1.04 MC=69.6%(FAIL)"
-  - "Bar: PF>1.2 (got 1.11) FAIL; Sharpe>0.5 (got 0.34) FAIL; MC>=70% (got 69.6%) FAIL; DD<4% (got 2.91%) PASS"
-  - "vs retired H7 (price-proxy): PF 0.74 -> 1.11, DD 9.17% -> 2.91% — real rate signal is materially better."
-  - "Marginal fail: 0.4% short of MC bar, Sharpe 0.16 under. Static rate table is the weak link."
+  - "v0 (static rate snapshot): trades=138 win=51.4% PF=1.11 Sharpe=0.34 maxDD=2.91% ret=2.24% RR=1.04 MC=69.6%(FAIL) — 0.4% short of MC bar."
+  - "v1 (time-varying rates + inverse-vol): trades=138 win=50.0% PF=1.03 Sharpe=0.06 maxDD=5.08% ret=0.61% RR=1.03 MC=54.2%(FAIL) — WORSE than v0."
+  - "Bar: PF>1.2 / Sharpe>0.5 / MC>=70% / DD<4%. v1 fails ALL FOUR (DD even breaches the 4% gate)."
+  - "Why it failed: 2024-2026 was a broad rate-CUTTING regime. Time-varying carry kept rotating into positions whose differential compressed; inverse-vol sizing did not help in high-vol FX. No edge in this era/sample."
 
 reviewed_by: ""
-retired_reason: ""
-next_action: >
-  MARGINAL FAIL (not broken). Candidate for revision: (a) time-varying rate series
-  instead of static snapshot; (b) vol-scaled position sizing to lift Sharpe/MC.
-  Do NOT tune to pass. Re-run after revision. No capital until bar is cleared.
+retired_reason: >
+  FAILED the validation bar on both v0 (marginal) and v1 (clear, worse). G10 FX
+  carry shows no tradable edge in the 2024-2026 cutting-cycle sample. Retired
+  honestly per RESEARCH_PROTOCOL_v1 — not tuned to pass. Only H5 (equity
+  momentum) remains proven. TradeLocker FX demo stays read-only (no passing FX
+  hypothesis to run on it).
+next_action: "CLOSED. Do not retest without new evidence or a materially different market structure / rate regime."

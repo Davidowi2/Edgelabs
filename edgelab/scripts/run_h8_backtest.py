@@ -52,11 +52,11 @@ def monthly_returns_from_trades(trades, equity_curve):
 def main():
     feed = MarketDataFeed()
 
-    # ---------- H8: G10 FX carry (real rate differential) ----------
-    print("=== H8: G10 FX Carry (monthly, REAL rate-differential) ===")
-    print("  carry ranking uses v0 STATIC policy-rate snapshot (flagged).")
-    print(f"  current_signal: {current_signal()['longs']} / "
-          f"shorts {current_signal()['shorts']}")
+    # ---------- H8: G10 FX carry (real rate differential, v1 time-varying + vol-scaled) ----------
+    print("=== H8: G10 FX Carry (monthly, REAL rate-differential, v1 time-varying + vol-scaled) ===")
+    print("  carry ranking uses v1 TIME-VARYING policy-rate history (documented) + inverse-vol sizing.")
+    cs = current_signal()
+    print(f"  current_signal({cs['as_of']}): longs {cs['longs']} / shorts {cs['shorts']}")
     prices = {}
     for s in UNIVERSE:
         try:
@@ -78,8 +78,9 @@ def main():
           f"(PF={m['profit_factor']:.2f} Sharpe={m['sharpe_ratio']:.2f} "
           f"DD={m['max_drawdown_pct']:.2f}% MC={'PASS' if mc_pass else 'FAIL'})")
     if not (h8_pass and mc_pass):
-        print("  => H8 FAILED the bar per RESEARCH_PROTOCOL_v1. Honest outcome,")
-        print("     not tuned. Retire or revise (e.g. time-varying rates, vol-scaled).")
+        print("  => H8 FAILED the bar per RESEARCH_PROTOCOL_v1 even after v1 revision") 
+        print("     (time-varying rates + vol-scaled). Honest outcome, not tuned.")
+        print("     Retire or revise further (e.g. vol-targeting, cost model, universe).")
         return
 
     # ---------- diversification check vs H5 equity momentum ----------

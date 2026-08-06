@@ -86,18 +86,21 @@ def h5_narrative(live: Optional[dict] = None) -> dict:
 
 
 def h8_narrative() -> dict:
-    """Honest scoreboard for the H8 FX carry candidate (NOT live, backtest only)."""
+    """Honest scoreboard for the H8 FX carry candidate (RETIRED, no capital)."""
     return {
         "strategy": "H8 — G10 FX Carry (real rate-differential)",
-        "status": "MARGINAL FAIL (backtest, no capital)",
-        "verdict": ("Failed the research bar honestly — PF 1.11 (need >1.2), "
-                    "Sharpe 0.34 (need >0.5), MC 69.6% (need >=70%), DD 2.91% "
-                    "(pass, <4%). Much better than the retired H7 proxy. Candidate "
-                    "for revision (time-varying rates), NOT promoted to trading."),
-        "backtest": {"trades": 138, "win_rate": 0.514, "profit_factor": 1.11,
-                     "sharpe": 0.34, "max_dd_pct": 2.91, "mc_profitable_pct": 69.6},
-        "note": ("Would live on TradeLocker FX demo if it ever passes. Uses a static "
-                 "v0 rate table today — the weak link."),
+        "status": "RETIRED (failed the bar, no capital)",
+        "verdict": ("Retired honestly per RESEARCH_PROTOCOL_v1. v0 was a marginal fail "
+                    "(PF 1.11, MC 69.6%); v1 (time-varying rates + vol-scaled) was a "
+                    "CLEAR fail and worse (PF 1.03, Sharpe 0.06, DD 5.08%, MC 54.2%). "
+                    "No FX carry edge in the 2024-2026 rate-cutting regime. Only H5 "
+                    "(equity momentum) remains proven."),
+        "backtest": {"v0": {"trades": 138, "profit_factor": 1.11, "sharpe": 0.34,
+                            "max_dd_pct": 2.91, "mc_profitable_pct": 69.6},
+                     "v1": {"trades": 138, "profit_factor": 1.03, "sharpe": 0.06,
+                            "max_dd_pct": 5.08, "mc_profitable_pct": 54.2}},
+        "note": ("TradeLocker FX demo stays read-only — no passing FX hypothesis to "
+                 "run on it. Retest only with new evidence / different rate regime."),
         "live": False,
     }
 
@@ -106,7 +109,7 @@ def roadmap_scoreboard() -> dict:
     """One-screen honest state of every strategy."""
     return {
         "H5_equity_momentum": "PROVEN · LIVE (Alpaca paper)",
-        "H8_fx_carry": "MARGINAL FAIL · backtest only",
+        "H8_fx_carry": "RETIRED (failed bar v0+v1)",
         "H7_fx_carry_proxy": "RETIRED (failed bar)",
         "H4_H6_crypto": "FAILED bar (not promoted)",
         "H2_gold": "RETIRED (no edge)",
