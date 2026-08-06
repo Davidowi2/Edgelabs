@@ -56,16 +56,17 @@ RATE_HISTORY = [
 _RATE_COLS = ["AUD", "NZD", "GBP", "EUR", "JPY", "CHF", "CAD", "USD"]
 _RATE_DF = pd.DataFrame(
     {c: [row[i + 1] for row in RATE_HISTORY] for i, c in enumerate(_RATE_COLS)},
-    index=pd.to_datetime([r[0] for r in RATE_HISTORY]).tz_localize("UTC"),
+    index=pd.to_datetime([r[0] for r in RATE_HISTORY]),
 )
 
 
 def _rate_at(symbol: str, month: pd.Timestamp) -> float:
     """Policy-rate differential (USD - foreign) effective at `month`, from the
-    time-varying v1 history (step/ffill via asof)."""
+    time-varying v1 history (step/ffill via asof). Tolerates tz-naive/aware."""
     code = symbol.replace("=X", "")
     foreign = code[3:] if code.startswith("USD") else code[:3]
-    ts = _RATE_DF.index.asof(month)  # most recent rate row at or before `month`
+    m = month.tz_localize(None) if month.tzinfo is not None else month
+    ts = _RATE_DF.index.asof(m)  # most recent rate row at or before `month`
     if ts is pd.NaT:
         ts = _RATE_DF.index[0]
     usd = float(_RATE_DF.loc[ts, "USD"])
