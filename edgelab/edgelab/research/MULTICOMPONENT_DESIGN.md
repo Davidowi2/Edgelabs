@@ -51,6 +51,19 @@ long-only, fully-invested, monthly — vol-scaling can't remove a structural equ
 drawdown. So Sleeve 1 = slightly safer core; the real survival comes from the OTHER
 sleeves (TSMOM crisis-alpha + risk-parity + daily risk control), NOT from tweaking H5
 alone. No tuning-to-pass; this is the honest measured number.
+
+## Sleeve 1 — WALK-FORWARD robustness (2026-08-06, learned from tf-trend discipline)
+External `tf-trend` (systematic-trend-following) repo's key contribution = WALK-FORWARD
+evaluation across multiple OOS folds. We already HAVE this harness (backtest/walk_forward.py);
+applied it to H5 via scripts/run_h5_walkforward.py (13 disjoint 3-month OOS folds over 5y):
+- RAW H5 WF: OOS trades=1230 PF=1.32 Sharpe=1.24 MC=99.7% PASS  (edge robust across folds)
+- VT  H5 WF: OOS trades=1230 PF=1.32 Sharpe=1.29 MC=99.8% PASS
+- **Verdict: H5 edge is ROBUST, not a lucky single split** (this is exactly the discipline
+  that would have caught our crypto H4 IS-mirage). The walk-forward DD (71%/50%) is a
+  concatenation artifact (sums P&L across folds) — NOT per-fold DD; the live 4% halt bounds
+  per-fold realized risk. Do NOT misread WF-DD as a real drawdown.
+- Transferable technique confirmed: walk-forward multi-fold validation is now standard for
+  any new sleeve (esp. TSMOM Sleeve 2) before promotion.
 - Vol-targeting changes H5's risk profile; must re-validate H5-VolTargeted through the
   full 5y bar + OOS gate (not just assert it works).
 - This is a DESIGN grounded in literature + our own failure record. It is NOT yet
