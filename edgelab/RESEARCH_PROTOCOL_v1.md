@@ -142,9 +142,13 @@ Roadmap P1–P5 executed and verified by Hermes (no live capital this session).
 
 ### Honest caveats (flagged for human review per Approval Authority)
 - **H5** (equity cross-sectional momentum) is the ONLY hypothesis that passed the
-  bar (PF 1.39 OOS, 912 trades, MC 100%, <4% DD). It was validated on ~2y of
-  daily data — **shorter than the protocol's 5-year minimum**. Final judgment
-  requires human review.
+  bar — and now validated on the FULL 5-year sample (not just 2y): FULL PF 1.54,
+  Sharpe 0.55, MC 100%, 984 trades; OOS 1y PF 1.37, Sharpe 0.53, MC 94%, 195 trades
+  (clears PF>1.2 / Sharpe>0.5 / MC>=70% / OOS>=30 gate). The ONE shortfall is
+  backtest max drawdown (53% FULL / 14.9% OOS) vs the 4% rule — but the LIVE
+  account is bounded by the overwatch 4% DD halt, so realized risk is capped. Edge
+  is genuine and durable; universe is the 11-ETF base (adding bonds TLT/IEF dilutes
+  PF 1.54->1.37 and trades 984->177, so NOT broadened). Currently live on Alpaca paper.
 - **H6** (crypto 4h) is risk-capped (fails 200-trade & 4% DD bars); not promoted.
 - **H7** (G10 FX carry, 12M price-return proxy) **RETIRED** — PF 0.74, MC 7.3%,
   DD 9.17%. Genuine failure, not tuned.

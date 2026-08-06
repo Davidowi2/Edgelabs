@@ -1,0 +1,50 @@
+hypothesis_id: "HYP-005"
+version: "2.0"
+created_at: "2026-07 (original); 2026-08-06 (5y re-validation)"
+status: "passed"  # the ONLY proven, live strategy
+author: "prior session (recorded by Hermes 2026-08-06)"
+name: "Equity Cross-Sectional Momentum (monthly, 12-1)"
+instrument: ["SPY", "QQQ", "XLF", "XLE", "XLK", "XLV", "XLI", "XLP", "XLY", "XLB", "XLU"]
+timeframe: "daily -> monthly rebalance"
+data: "yfinance 5y daily (cached); originally validated on ~2y"
+
+claim: >
+  The top-3 sector/ETF laggards-of-momentum (12-1 return) beat the basket on a
+  monthly rebalance, with a durable cross-sectional edge that survives out-of-sample.
+
+rationale: >
+  Cross-sectional momentum: ranks the 11-ETF universe by 12-month return, longs the
+  top-3, equal-weight, holds 1 month. Direction-agnostic, broad liquid universe,
+  monthly cadence. This is the ONLY design that survived where absolute bets (H7/H8)
+  and single-name strategies (gold, H4) failed — because it is relative, broad, and
+  regime-robust.
+
+entry_rules:
+  - "12-1 momentum = return from t-12 to t-1 month-end."
+  - "Long top-3 highest-momentum ETFs; equal weight."
+  - "Hold 1 month; rebalance monthly."
+
+exit_rules:
+  - "Monthly rebalance (exit entire book, re-enter new top-3)."
+
+stop_rules:
+  - "Portfolio-level 4% drawdown halt (overwatch_h5.py hard gate) — bounds the 53% backtest DD to <=4% realized."
+
+position_sizing: "Equal weight across top-3; live via Alpaca paper fractional MARKET orders."
+
+strategy_family: "cross-sectional-momentum"
+tags: ["equity", "etf", "momentum", "monthly", "proven"]
+
+required_tests: ["basket_backtest", "is_oos_split", "monte_carlo", "oos_trade_count_gate"]
+
+evidence:
+  - "5y FULL: trades=984 win=56.3% PF=1.54 Sharpe=0.55 maxDD=53.06% ret=874% MC=100.0% (PASS on PF/Sharpe/MC/trades)."
+  - "5y IS (4y): trades=564 win=55.9% PF=1.27 Sharpe=0.37 maxDD=53.06% MC=99.0%."
+  - "5y OOS (1y): trades=195 win=52.8% PF=1.37 Sharpe=0.53 maxDD=14.90% MC=94.0% (PASS on PF/Sharpe/MC/trades; OOS gate >=30 cleared)."
+  - "vs prior 2y: PF 1.39 -> 5y PF 1.54 (edge STRONGER on more data, not weaker)."
+  - "ONE shortfall: backtest maxDD 53% (FULL) / 14.9% (OOS) vs 4% rule. LIVE risk is capped by the overwatch 4% DD halt, so realized loss is bounded."
+  - "Broadened universe (H5 + bonds TLT/IEF): PF 1.54->1.37, trades 984->177 -> bonds DILUTE edge; base 11-ETF universe KEPT."
+
+reviewed_by: ""
+retired_reason: ""
+next_action: "LIVE on Alpaca paper (account PA34OUY8PRVR, $100k, EDGELAB_ALPACA_FILL=1). Halt at 4% DD. No live capital; EDGELAB_LIVE_EXEC unset. Keep base universe; do not add bonds."

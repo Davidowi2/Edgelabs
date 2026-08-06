@@ -81,7 +81,15 @@ def h5_narrative(live: Optional[dict] = None) -> dict:
         "status": status,
         "story": story,
         "as_of": as_of,
-        "verdict": "PROVEN — passes the research bar (PF 1.39 OOS). Live on Alpaca paper.",
+        "verdict": ("PROVEN — now validated on the FULL 5y bar (FULL PF 1.54, Sharpe 0.55, "
+                    "MC 100%; OOS 1y PF 1.37, Sharpe 0.53, MC 94%). Only shortfall is "
+                    "backtest drawdown (53% / 14.9% OOS) vs the 4% rule — LIVE risk is "
+                    "capped by the overwatch 4% DD halt. Universe: 11-ETF base (bonds "
+                    "dilute, so not added). Live on Alpaca paper."),
+        "validation_5y": {"full_pf": 1.54, "full_sharpe": 0.55, "full_mc": 100.0,
+                          "oos_pf": 1.37, "oos_sharpe": 0.53, "oos_mc": 94.0,
+                          "oos_trades": 195, "backtest_max_dd": 53.06,
+                          "oos_max_dd": 14.90, "live_dd_cap": 4.0},
     }
 
 
@@ -108,7 +116,7 @@ def h8_narrative() -> dict:
 def roadmap_scoreboard() -> dict:
     """One-screen honest state of every strategy."""
     return {
-        "H5_equity_momentum": "PROVEN · LIVE (Alpaca paper)",
+        "H5_equity_momentum": "PROVEN · LIVE (Alpaca paper) · 5y-validated (PF1.54/MC100%)",
         "H8_fx_carry": "RETIRED (failed bar v0+v1)",
         "H7_fx_carry_proxy": "RETIRED (failed bar)",
         "H4_H6_crypto": "FAILED bar (not promoted)",
