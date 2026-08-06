@@ -1,0 +1,33 @@
+hypothesis_id: "HYP-004"
+version: "1.0"
+created_at: "2026-08 (repo-historical)"
+status: "retired"  # crypto BTC daily trend; IS pass, OOS 0 trades -> regime break
+author: "prior session (recorded by Hermes 2026-08-06)"
+name: "Crypto Trend (BTC/USDT daily breakout)"
+instrument: ["BTC/USDT"]
+timeframe: "1d"
+data: "BTC_USDT_ccxt_1d.csv (ccxt, 5.5y 2021-02..2026-08)"
+
+claim: "BTC trends; go long when price breaks above its 20-bar high while above EMA200."
+
+rationale: >
+  Long-only daily breakout: close > EMA200 (uptrend filter) AND close == 20-bar
+  highest close; stop 2x ATR(20); exit on close < EMA50 or 30-bar time stop; 1% risk;
+  no session filter (24/7).
+
+required_tests: ["canonical_backtest", "is_oos_split", "monte_carlo"]
+
+evidence:
+  - "IS (2021-2024 bull): trades=29, win=37.9%, PF=2.73, Sharpe=0.63, MC=96.9% (PASS on paper)."
+  - "OOS (2024-2026): trades=0, PF=0.00 (FAIL — strategy never fired out-of-sample)."
+  - "Full: trades=34, win=35.3%, PF=2.50, Sharpe=0.53, MC=95.9% (PASS on paper)."
+  - "Bar: PF>1.2 / Sharpe>0.5 / MC>=70% / OOS must trade. IS 'passes' but OOS=0 -> FAIL."
+
+reviewed_by: ""
+retired_reason: >
+  Classic regime break / in-sample overfit. The breakout-above-EMA200 trigger fired
+  29 times in the 2021-2024 bull and ZERO times out-of-sample (2024-2026) — the edge
+  decayed to nothing the moment the historical window ended. An IS-only 'pass' on
+  crypto momentum is a red flag, not a green light. Validation correctly fails on
+  OOS=0. Matches the known crypto problem: momentum works until crowded, then doesn't.
+next_action: "CLOSED as designed. Crypto momentum is a long shot; a genuine new attempt needs a different signal (cross-sectional crypto momentum, funding-rate carry) with an explicit OOS trade-count gate."

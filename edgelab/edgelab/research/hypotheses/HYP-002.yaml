@@ -1,0 +1,35 @@
+hypothesis_id: "HYP-002"
+version: "1.0"
+created_at: "2026-08 (repo-historical)"
+status: "retired"  # gold XAUUSD H4 structure-pullback family; v1/v2/v3 all failed
+author: "prior session (recorded by Hermes 2026-08-06)"
+name: "Gold XAUUSD H4 Structure Pullback (v1/v2/v3)"
+instrument: ["XAUUSD"]
+timeframe: "H4"
+data: "XAUUSD_H4_raw.csv (Yahoo GC=F 1h resampled, 2y 2024-08..2026-08)"
+
+claim: "Gold trends on H4; buy pullbacks to the 200-EMA during an HTF uptrend."
+
+rationale: >
+  Pure price-action: HTF structure bias (HH/HL or EMA50 trend) + pullback within
+  0.5-1.5% of 200-EMA + rejection candle, London/NY session filter, 1.5 ATR stop,
+  1% risk. NO fundamental anchor (real rates / DXY / inflation). v1/v2 tweak the EMA
+  band; v3 swaps the bias for an EMA50 trend filter.
+
+required_tests: ["canonical_backtest", "is_oos_split", "monte_carlo"]
+
+evidence:
+  - "v1 (structure_pullback_h4): OOS trades=0, Full trades=0 — NEVER FIRED in 2y."
+  - "v2 (structure_pullback_h4_h2): OOS trades=0, Full trades=1 (lost), PF=0.00, Sharpe=-0.28, MC=0%."
+  - "v3 (structure_pullback_h4_h3): OOS trades=6 (all lost), PF=0.00, Sharpe=-1.51; Full trades=40, win=27.5%, PF=0.91, Sharpe=-0.06, MC=40.6%."
+  - "Bar: >=200 trades + PF>1.2 + Sharpe>0.5 + DD<5%. All fail on trade COUNT (0/1/40 << 200)."
+  - "2y data fails the 5y validation bar (reported honestly)."
+
+reviewed_by: ""
+retired_reason: >
+  NOT 'no edge found' — the real failure is INERTIA: the session filter + tight
+  EMA-proximity + rejection-candle rules are so restrictive that on H4 gold the
+  strategy almost never triggers (0/1/40 trades). A strategy that never fires is not
+  a strategy. When it did trade (v3) the edge was negative. Pure price-action with no
+  fundamental anchor, as predicted weak by design.
+next_action: "CLOSED as designed. Revisit only as a NEW fundamentally-anchored gold hypothesis (real-rate / DXY-relative) with >=5y data. No v4 tweak of structure-pullback."
