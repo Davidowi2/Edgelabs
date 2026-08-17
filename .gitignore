@@ -1,3 +1,8 @@
+# local-only launcher env (contains demo creds; never commit)
+edgelab/launcher/.env
+*.env
+.env
+
 # runtime logs
 edgelab/logs/
 *.log

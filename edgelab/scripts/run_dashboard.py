@@ -331,4 +331,4 @@ def main(port: int = 8765):
 
 
 if __name__ == "__main__":
-    main(int(os.environ.get("DASH_PORT", "8765")))
+    main(int(os.environ.get("DASH_PORT", "8080")))
