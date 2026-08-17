@@ -6,6 +6,11 @@ loguru>=0.7
 pytest-cov>=4.1
 histdata>=1.1
 requests>=2.31
+schedule>=1.2
+
+# Desktop app shell for the dashboard (native Edge WebView2 on Windows).
+# Used by launcher/dashboard_app.py -> Desktop "EdgeLabs Monitor" shortcut.
+pywebview>=5.0
 
 # Optional: Phase 9b real broker connector (TradeLocker / MT5).
 # Conditional import — the system runs without it (falls back to MockBroker).
