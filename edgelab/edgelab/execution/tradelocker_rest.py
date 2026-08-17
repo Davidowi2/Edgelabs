@@ -17,7 +17,7 @@ then you select the account by id from /account/list.
 
 GATING (same as every other EdgeLab path):
   - This client will NOT submit a real order unless EDGELAB_DEMO_AUTH == '1'
-    (explicit user go-ahead; no TradeLocker '#D#' framing).
+    (explicit user go-ahead).
   - Without that, submit() returns a halted result (no HTTP call).
   - No live-capital path exists; DEMO only.
 
