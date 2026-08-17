@@ -16,10 +16,9 @@ numeric login like D#2329061; TradeLocker's JWT auth takes the EMAIL + password,
 then you select the account by id from /account/list.
 
 GATING (same as every other EdgeLab path):
-  - This client will NOT submit a real order unless BOTH:
-      * the caller passed the explicit '#D#' confirmation marker (env DEMO_CONFIRM='#D#'), and
-      * EDGELAB_DEMO_FILL == '1'.
-  - Without those, submit() computes the order but returns a halted result (no HTTP call).
+  - This client will NOT submit a real order unless EDGELAB_DEMO_AUTH == '1'
+    (explicit user go-ahead; no TradeLocker '#D#' framing).
+  - Without that, submit() returns a halted result (no HTTP call).
   - No live-capital path exists; DEMO only.
 
 Offline-safe: if `requests` is unavailable or no network, methods raise clearly.
@@ -39,7 +38,6 @@ except ImportError:  # pragma: no cover
     requests = None
     REQUESTS_OK = False
 
-DEMO_MARKER = "#D#"
 BASE_URL = "https://api.tradelocker.com"
 
 
