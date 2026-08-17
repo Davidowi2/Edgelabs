@@ -84,13 +84,28 @@ low-DD, crisis-alpha engine H5 was missing (it trades monthly too, but is direct
 can short, and is uncorrelated to H5's cross-sectional long-only).** This is the
 "survive-the-market" structure, now backtest-proven on 5y.
 
-HONEST CAVEAT: the reported COMBINED Sharpe (0.46) is LESS trustworthy than the DD
-reduction — my combine step reconstructed monthly returns from per-trade P&L, which
-distorts Sharpe when sleeves have different trade counts. The 68% DD reduction is the
-robust signal; combined Sharpe needs recompute from the actual monthly equity curves
-(backlog). Treat combined Sharpe as provisional, not final. Both sleeves individually
-pass the bar cleanly (MC ~100%), so the combo is legitimate — only the combined Sharpe
-metric is rough. No tuning-to-pass; these are the raw measured numbers.
+HONEST CAVEAT: the reported COMBINED Sharpe (0.46) was LESS trustworthy than the DD
+reduction — my first combine step reconstructed monthly returns from per-trade P&L,
+which distorts Sharpe when sleeves have different trade counts.
+==> FIXED (2026-08-17): rebuilt the combo from each sleeve's REAL monthly equity curve
+    (proper pct_change -> risk-parity weight -> combined curve -> Sharpe/DD/PF).
+    CORRECTED result: COMBINED ret=+47.6% DD=6.8% Sharpe=1.10 PF=2.24 (60 months).
+    DD reduction vs Sleeve1 alone (39.7%) = 83% (was 68% on the rough calc; real combo
+    is even safer). Combined Sharpe 1.10 > either sleeve alone (0.59 / 1.04) because the
+    two are uncorrelated and risk-parity sizing lets each contribute its best.
+    This is now a CLEAN, trustworthy result.
+
+## Sleeve 2 on FOREX (TradeLocker context) — FAILED, RETIRED for FX (2026-08-17)
+Pushed Sleeve 2's TSMOM signal to a forex universe (EURUSD/GBPUSD/USDJPY/AUDUSD/USDCAD)
+via scripts/run_sleeve2_tradelocker_demo.py (DEMO #D# gate, simulated MockBroker fill).
+RESULT: TSMOM on FX 5y = PF=0.71 Sharpe=-0.70 DD=9.2% -> FAILS the bar.
+=> Sleeve 2's edge is specific to the MULTI-ASSET universe (equities/bonds/gold/commodities),
+   NOT raw FX pairs. Same conclusion as H9-FX (cross-sectional also failed on FX).
+   CONSEQUENCE for TradeLocker: if we ever deploy Sleeve 2 there, it must trade CFDs on
+   the ASSET classes (XAUUSD gold, stock-index CFDs, bond ETFs) — not bare FX pairs.
+   TradeLocker DEMO pipeline is wired + gated (#D# + EDGELAB_DEMO_FILL=1); real DEMO
+   needs MT5 + TL_LOGIN/TL_PASSWORD/TL_SERVER (session env, never committed). This session
+   has no MT5/creds -> simulated only. No live capital.
 - Vol-targeting changes H5's risk profile; must re-validate H5-VolTargeted through the
   full 5y bar + OOS gate (not just assert it works).
 - This is a DESIGN grounded in literature + our own failure record. It is NOT yet

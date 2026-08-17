@@ -7,6 +7,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,16 +48,16 @@ def main():
     print("=== MULTI-COMPONENT: Sleeve 1 (VT-H5) + Sleeve 2 (TSMOM) ===")
 
     # --- Sleeve 1: vol-targeted H5, FULL 5y ---
-    s1_tr, _, s1_m = run_h5_voltarget({k: prices[k] for k in H5_UNIVERSE},
-                                      initial_equity=10000.0, top_n=3)
+    s1_tr, s1_curve, s1_m = run_h5_voltarget({k: prices[k] for k in H5_UNIVERSE},
+                                             initial_equity=10000.0, top_n=3)
     s1_pnls, s1_mc = sleeve_metrics(s1_tr)
     print(f"  Sleeve1 VT-H5: trades={s1_m['total_trades']} PF={s1_m['profit_factor']:.2f} "
           f"Sharpe={s1_m['sharpe_ratio']:.2f} DD={s1_m['max_drawdown_pct']:.1f}% "
           f"MC={s1_mc.profitable_pct:.1f}% {'PASS' if s1_mc.passed else 'FAIL'}")
 
     # --- Sleeve 2: TSMOM, FULL 5y ---
-    s2_tr, _, s2_m = run_tsmom({k: prices[k] for k in TSMOM_UNIVERSE},
-                               initial_equity=10000.0, lookback=12, allow_short=True)
+    s2_tr, s2_curve, s2_m = run_tsmom({k: prices[k] for k in TSMOM_UNIVERSE},
+                                      initial_equity=10000.0, lookback=12, allow_short=True)
     s2_pnls, s2_mc = sleeve_metrics(s2_tr)
     print(f"  Sleeve2 TSMOM: trades={s2_m['total_trades']} PF={s2_m['profit_factor']:.2f} "
           f"Sharpe={s2_m['sharpe_ratio']:.2f} DD={s2_m['max_drawdown_pct']:.1f}% "
@@ -75,30 +76,36 @@ def main():
         print("     (Risk parity is garbage-in/garbage-out — needs both edges real.)")
         return
 
-    # --- Combine via risk parity (monthly returns per sleeve) ---
-    # Build monthly return series from each sleeve's equity curve.
-    def monthly_returns(trades, equity_curve):
-        # equity_curve is list of (date, eq); derive per-month return from trades
-        pnls = [t.pnl for t in trades]
-        # reconstruct month-by-month equity from trades (each trade = 1 month holding)
-        eq = 10000.0
-        rets = []
-        for p in pnls:
-            rets.append(p / eq)
-            eq += p
-        return rets
+    # --- Combine via risk parity using REAL monthly equity curves (honest Sharpe) ---
+    # Reconstruct each sleeve's monthly return series from its actual equity curve,
+    # align on common months, weight by risk parity, then build the combined curve
+    # and compute Sharpe/DD/PF from it. (Fixes the earlier sloppy per-trade P&L
+    # reconstruction that distorted combined Sharpe.)
+    def monthly_df(curve):
+        idx = [pd.Timestamp(d) for d, _ in curve]
+        eq = [float(e) for _, e in curve]
+        return pd.Series(eq, index=idx)
 
-    r1 = monthly_returns(s1_tr, None)
-    r2 = monthly_returns(s2_tr, None)
+    s1_eq = monthly_df(s1_curve)
+    s2_eq = monthly_df(s2_curve)
+    common = s1_eq.index.intersection(s2_eq.index)
+    r1 = s1_eq.reindex(common).pct_change().dropna()
+    r2 = s2_eq.reindex(common).pct_change().dropna()
     n = min(len(r1), len(r2))
-    combined = combine_sleeves({"Sleeve1_VT_H5": r1[:n], "Sleeve2_TSMOM": r2[:n]},
+    r1, r2 = r1.iloc[:n], r2.iloc[:n]
+    combined = combine_sleeves({"Sleeve1_VT_H5": r1.tolist(), "Sleeve2_TSMOM": r2.tolist()},
                                max_weight=0.75, initial_equity=10000.0)
+    # combined PF from its equity curve
+    c_eq = np.array([e for _, e in combined["equity_curve"]])
+    c_ret = np.diff(c_eq)
+    c_pos = c_ret[c_ret > 0].sum(); c_neg = -c_ret[c_ret < 0].sum()
+    c_pf = (c_pos / c_neg) if c_neg > 0 else (float("inf") if c_pos > 0 else 0.0)
     print(f"\n  RISK-PARITY weights: {combined['weights']}")
-    print(f"  COMBINED: ret={combined['total_return_pct']:.1f}% DD={combined['max_drawdown_pct']:.1f}% "
-          f"Sharpe={combined['sharpe_ratio']:.2f} months={combined['n_months']}")
+    print(f"  COMBINED (real curves): ret={combined['total_return_pct']:.1f}% "
+          f"DD={combined['max_drawdown_pct']:.1f}% Sharpe={combined['sharpe_ratio']:.2f} "
+          f"PF={c_pf:.2f} months={combined['n_months']}")
     print(f"  => Combo DD vs Sleeve1 alone ({s1_m['max_drawdown_pct']:.1f}%): "
-          f"{(1 - combined['max_drawdown_pct']/max(s1_m['max_drawdown_pct'],1e-9))*100:.0f}% reduction "
-          f"if lower.")
+          f"{(1 - combined['max_drawdown_pct']/max(s1_m['max_drawdown_pct'],1e-9))*100:.0f}% reduction.")
 
 
 if __name__ == "__main__":
