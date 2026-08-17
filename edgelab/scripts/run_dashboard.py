@@ -97,18 +97,30 @@ def build_state() -> dict:
     now = datetime.now(timezone.utc)
     first_next = (now.replace(day=1) + timedelta(days=32)).replace(day=1)
     halted = bool(st.get("halted", False))
-    peak = float(st.get("peak_equity", 10000.0))
+    peak = float(st.get("peak_equity", 100000.0))
     daily_start = float(st.get("daily_start_equity", peak))
-    # daily loss vs budget (proxy; real equity feed would refine)
+    # REAL daily loss vs budget (uses live equity baselines from bot state)
     daily_loss_pct = 0.0
     if daily_start:
         daily_loss_pct = max(0.0, (daily_start - peak) / daily_start * 100.0)
+    # ---- REAL performance from perf_state.json (written by bot update_perf) ----
+    perf = {}
+    perf_file = LOG_DIR / "perf_state.json"
+    if perf_file.exists():
+        try:
+            perf = json.loads(perf_file.read_text())
+        except Exception:
+            perf = {}
+    wins = int(perf.get("wins", 0)); losses = int(perf.get("losses", 0))
+    total_t = wins + losses
+    win_rate = round(100.0 * wins / total_t, 1) if total_t else None
+    daily_pnl_series = perf.get("daily_pnl", [])
     return {
         "updated": now.isoformat(),
         "bot_alive": log.get("loop_alive") is not None,
         "last_heartbeat": log.get("loop_alive"),
         "broker_mode": log.get("broker_mode"),
-        "data_mode": "PROXY multi-asset (GLD/SPY/QQQ/TLT/IEF/DBC)" if log.get("proxy") else "real CFD feed (pending MT5/REST)",
+        "data_mode": "MetaTrader5 DEMO (FX universe)" if log.get("broker_mode") and "REAL" in str(log.get("broker_mode")) else "SIMULATED (no MT5 terminal)",
         "last_rebalance_month": st.get("last_rebalance_month"),
         "next_rebalance": first_next.strftime("%Y-%m-%d"),
         "halted": halted,
@@ -119,6 +131,14 @@ def build_state() -> dict:
         "last_halt": log.get("last_halt"),
         "engine": ENGINE_STATS,
         "narrative": _narrative(positions, halted, daily_loss_pct),
+        # ---- P&L panel ----
+        "equity": perf.get("last_equity"),
+        "balance": perf.get("balance"),
+        "daily_pnl": daily_pnl_series[-1]["pnl"] if daily_pnl_series else None,
+        "total_realized_pnl": perf.get("total_realized"),
+        "win_rate": win_rate,
+        "trades": total_t,
+        "daily_pnl_series": daily_pnl_series,
     }
 
 
@@ -181,6 +201,10 @@ HTML = r"""<!doctype html>
   .metric .lbl{font-size:11px;color:var(--muted);margin-top:3px}
   .gauge{height:10px;background:var(--panel2);border-radius:6px;overflow:hidden;margin-top:8px}
   .gauge > div{height:100%;background:linear-gradient(90deg,var(--ok),var(--warn),var(--short))}
+  .pnl-strip{display:flex;gap:3px;margin-top:8px;flex-wrap:wrap}
+  .pnl-bar{width:14px;height:42px;background:var(--panel2);border-radius:3px;position:relative;overflow:hidden}
+  .pnl-bar > i{position:absolute;left:0;right:0;bottom:50%;display:block}
+  .pnl-pos{background:var(--long)} .pnl-neg{background:var(--short)}
   .footer{color:var(--muted);font-size:11px;text-align:center;padding:14px}
   code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:12px}
   .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
@@ -202,9 +226,22 @@ HTML = r"""<!doctype html>
     <div class="pos-grid" id="positions" style="margin-top:14px"></div>
   </div>
 
-  <!-- Status -->
-  <div class="panel">
-    <h2>Bot status</h2>
+  <!-- P&L (live MT5 DEMO) -->
+  <div class="panel full">
+    <h2>Daily P&amp;L &amp; Performance (MT5 DEMO)</h2>
+    <div class="metrics">
+      <div class="metric"><div class="num" id="m_equity">—</div><div class="lbl">Equity USD</div></div>
+      <div class="metric"><div class="num" id="m_balance">—</div><div class="lbl">Balance USD</div></div>
+      <div class="metric"><div class="num" id="m_dailypnl">—</div><div class="lbl">Daily P&amp;L</div></div>
+      <div class="metric"><div class="num" id="m_realized">—</div><div class="lbl">Realized P&amp;L</div></div>
+      <div class="metric"><div class="num" id="m_winrate">—</div><div class="lbl">Win Rate</div></div>
+      <div class="metric"><div class="num" id="m_trades">—</div><div class="lbl">Trades</div></div>
+    </div>
+    <div class="narr" style="margin-top:10px;color:var(--muted);font-size:12px">
+      30-day daily P&amp;L (green = profit, red = loss):
+    </div>
+    <div class="pnl-strip" id="pnlstrip"></div>
+  </div>
     <div class="row"><span class="k">Alive</span><span class="v" id="alive">—</span></div>
     <div class="row"><span class="k">Last heartbeat</span><span class="v" id="hb">—</span></div>
     <div class="row"><span class="k">Broker mode</span><span class="v"><span id="broker" class="pill sim">—</span></span></div>
@@ -288,6 +325,26 @@ async function refresh(){
     document.getElementById('m_s1').textContent=e.sleeve1?e.sleeve1.name+' · DD '+e.sleeve1.dd+'% · Sharpe '+e.sleeve1.sharpe:'';
     document.getElementById('m_s2').textContent=e.sleeve2?e.sleeve2.name+' · DD '+e.sleeve2.dd+'% · Sharpe '+e.sleeve2.sharpe:'';
     document.getElementById('m_w').textContent=e.weights?('Sleeve1 '+e.weights.Sleeve1+' / Sleeve2 '+e.weights.Sleeve2):'';
+    // ---- P&L panel ----
+    const fmtUsd=v=>(v==null?'—':'$'+Number(v).toLocaleString(undefined,{maximumFractionDigits:2}));
+    document.getElementById('m_equity').textContent=fmtUsd(d.equity);
+    document.getElementById('m_balance').textContent=fmtUsd(d.balance);
+    const dp=document.getElementById('m_dailypnl');
+    dp.textContent=d.daily_pnl==null?'—':(d.daily_pnl>=0?'+$':'-$')+Math.abs(Number(d.daily_pnl)).toFixed(2);
+    dp.style.color=d.daily_pnl>0?'var(--long)':(d.daily_pnl<0?'var(--short)':'var(--ink)');
+    document.getElementById('m_realized').textContent=fmtUsd(d.total_realized_pnl);
+    document.getElementById('m_winrate').textContent=d.win_rate==null?'—':d.win_rate+'%';
+    document.getElementById('m_trades').textContent=d.trades==null?'—':d.trades;
+    const strip=document.getElementById('pnlstrip'); strip.innerHTML='';
+    (d.daily_pnl_series||[]).forEach(d0=>{
+      const bar=document.createElement('div'); bar.className='pnl-bar';
+      const i=document.createElement('i'); const v=Number(d0.pnl)||0;
+      const h=Math.min(50,Math.abs(v)/ (Math.max(...(d.daily_pnl_series||[{pnl:1}]).map(x=>Math.abs(Number(x.pnl)||1)))+1e-9)*50);
+      i.style.height=h+'%';
+      i.className=v>=0?'pnl-pos':'pnl-neg';
+      i.title=d0.date+': '+(v>=0?'+':'')+v.toFixed(2);
+      bar.appendChild(i); strip.appendChild(bar);
+    });
   }catch(err){ /* keep last good render */ }
 }
 refresh(); setInterval(refresh, 5000);

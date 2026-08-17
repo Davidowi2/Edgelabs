@@ -130,6 +130,45 @@ class TradeLockerBroker(BrokerInterface):
         return MockTradeResult(result.retcode, False, float(result.volume))
 
     # ----- state reads -----
+    def get_account_info(self) -> dict:
+        if not self._ensure_connected():
+            return {}
+        ai = mt5.account_info()
+        if ai is None:
+            return {}
+        return {
+            "login": int(ai.login),
+            "balance": float(ai.balance),
+            "equity": float(ai.equity),
+            "profit": float(ai.profit),
+            "margin": float(ai.margin),
+            "currency": str(ai.currency),
+            "leverage": int(getattr(ai, "leverage", 0)),
+        }
+
+    def get_deals_history(self, days: int = 7) -> List[dict]:
+        """Closed deals over the last `days` (for realized P&L + win rate)."""
+        if not self._ensure_connected():
+            return []
+        from datetime import datetime, timedelta, timezone
+        to = datetime.now(timezone.utc)
+        from_d = to - timedelta(days=days)
+        deals = mt5.history_deals_get(from_d, to) or []
+        out = []
+        for d in deals:
+            if int(getattr(d, "magic", -1)) != self._magic:
+                continue
+            out.append({
+                "ticket": int(getattr(d, "deal", 0)),
+                "symbol": getattr(d, "symbol", ""),
+                "type": "BUY" if getattr(d, "type", 0) == 0 else "SELL",
+                "volume": float(getattr(d, "volume", 0.0)),
+                "price": float(getattr(d, "price", 0.0)),
+                "profit": float(getattr(d, "profit", 0.0)),
+                "time": int(getattr(d, "time", 0)),
+            })
+        return out
+
     def get_open_positions(self) -> List[dict]:
         if not self._ensure_connected():
             return []

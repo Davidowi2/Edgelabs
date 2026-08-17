@@ -113,13 +113,10 @@ class TradeLockerRestBroker(BrokerInterface):
 
     # ---------- BrokerInterface ----------
     def submit(self, request: dict) -> MockTradeResult:
-        """Place an order via REST. GATED: only if '#D#' + EDGELAB_DEMO_FILL=1."""
-        confirm = os.environ.get("DEMO_CONFIRM", "")
-        fill_allowed = os.environ.get("EDGELAB_DEMO_FILL", "") == "1"
-        if confirm != DEMO_MARKER or not fill_allowed:
-            self._logger.info("tradelocker-rest: SUBMISSION HALTED (need '#D#' + "
-                              "EDGELAB_DEMO_FILL=1). No order sent.",
-                              )
+        """Place an order via REST. GATED: only if EDGELAB_DEMO_AUTH=1."""
+        auth = os.environ.get("EDGELAB_DEMO_AUTH", "") == "1"
+        if not auth:
+            self._logger.info("tradelocker-rest: SUBMISSION HALTED (need EDGELAB_DEMO_AUTH=1). No order sent.")
             return MockTradeResult(0, False, 0.0)  # halted, no HTTP call
         if not self._require_conn():
             return MockTradeResult(10006, False, 0.0)  # transient connection error

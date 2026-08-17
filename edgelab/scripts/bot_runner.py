@@ -1,15 +1,17 @@
-"""Persistent bot_runner for the multi-component system on TradeLocker DEMO.
+"""Persistent bot_runner for the multi-component system on MetaTrader5 DEMO.
 
 Runs as a LONG-LIVED loop (schedule library, not cron). Each month it:
-  1. Fetches history for a TradeLocker-tradable CFD universe (gold XAUUSD + index CFDs).
-  2. Computes Sleeve 2 (TSMOM directional trend) signal + vol-t measured sizing.
-  3. Applies the DAILY 4% loss lock + circuit breaker (existing circuit_breaker.py).
-  4. Submits DEMO orders ONLY if explicit '#D#' marker + EDGELAB_DEMO_FILL=1.
+  1. Fetches history for the symbols TRADEABLE on the connected MT5 DEMO account.
+  2. Computes Sleeve 2 (TSMOM directional trend) signal + vol-target sizing.
+  3. Applies the DAILY 4% loss lock + circuit breaker.
+  4. Submits DEMO orders ONLY if EDGELAB_DEMO_AUTH=1 (explicit user go-ahead).
 
-Broker: real TradeLocker (MT5) when TL_* creds + MetaTrader5 are present; otherwise a
-MockBroker fallback (clearly labeled [SIMULATED]). No live capital, ever.
+Broker: real MetaTrader5 when TL_* creds + terminal are present; else MockBroker
+(simulated). No live capital, ever. Per protocol: DEMO/paper only.
 
-Per protocol: DEMO/paper only. The bot NEVER auto-promotes to live.
+On a generic MetaQuotes-Demo account the tradeable universe is typically FX pairs
+(our ETF CFDs are not enabled there). TSMOM on FX is a known weak edge — the bot
+reports REAL P&L honestly via the dashboard; it does not fake good numbers.
 """
 from __future__ import annotations
 
@@ -24,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import schedule
+import pandas as pd
 
 from edgelab.data.market_feed import MarketDataFeed
 from edgelab.strategy.tsmom import run_tsmom
@@ -31,14 +34,14 @@ from edgelab.monitoring.logger import TradingLogger
 from edgelab.execution.circuit_breaker import CircuitBreaker, CircuitConfig
 from edgelab.execution.mock_broker import MockBroker, MockTradeResult
 
-# TradeLocker-tradable CFD universe. Gold confirmed available (docs). Index CFDs are
-# common on TradeLocker; any unavailable symbol is gracefully skipped at fetch time.
-TRADELOCKER_UNIVERSE = ["XAUUSD", "US30", "NAS100", "DE40", "UK100"]
-DEMO_MARKER = "#D#"
+# FX universe we ATTEMPT on the demo (filtered to what MT5 reports tradeable).
+FX_UNIVERSE = ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD"]
 STATE_FILE = ROOT / "logs" / "bot_state.json"
+PERF_FILE = ROOT / "logs" / "perf_state.json"
 LOG_FILE = ROOT / "logs" / "bot_runner.log"
-DAILY_LOSS_LOCK_PCT = 0.04  # 4% daily drawdown kill switch (your standing rule)
+DAILY_LOSS_LOCK_PCT = 0.04  # 4% daily drawdown kill switch
 REBALANCE_LOOKBACK = 12
+DEMO_AUTH = os.environ.get("EDGELAB_DEMO_AUTH", "") == "1"  # user go-ahead (replaces #D#)
 
 
 def _log(logger, level, msg, **kw):
@@ -48,11 +51,18 @@ def _log(logger, level, msg, **kw):
 def load_state() -> dict:
     if STATE_FILE.exists():
         try:
-            return json.loads(STATE_FILE.read_text())
+            st = json.loads(STATE_FILE.read_text())
         except Exception:  # noqa: BLE001
-            pass
-    return {"last_rebalance_month": "", "peak_equity": 10000.0,
-            "daily_start_equity": 10000.0, "last_date": "", "halted": False}
+            st = {}
+    else:
+        st = {}
+    # baseline to the REAL demo equity ($100k); never the stale 10k sim default
+    st.setdefault("peak_equity", 100000.0)
+    st.setdefault("daily_start_equity", 100000.0)
+    st.setdefault("last_rebalance_month", "")
+    st.setdefault("last_date", "")
+    st.setdefault("halted", False)
+    return st
 
 
 def save_state(st):
@@ -60,8 +70,23 @@ def save_state(st):
     STATE_FILE.write_text(json.dumps(st, indent=2))
 
 
+def load_perf() -> dict:
+    if PERF_FILE.exists():
+        try:
+            return json.loads(PERF_FILE.read_text())
+        except Exception:
+            pass
+    return {"daily_pnl": [], "last_equity": None, "total_realized": 0.0,
+            "wins": 0, "losses": 0, "trades": 0}
+
+
+def save_perf(p):
+    PERF_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PERF_FILE.write_text(json.dumps(p, indent=2))
+
+
 def build_broker(logger):
-    """Real TradeLocker if TL_* creds present; else a DEMO-simulated MockBroker."""
+    """Real MT5 if TL_* creds present; else a DEMO-simulated MockBroker."""
     has_creds = all(os.environ.get(k) for k in ("TL_LOGIN", "TL_PASSWORD", "TL_SERVER"))
     if has_creds:
         try:
@@ -70,72 +95,88 @@ def build_broker(logger):
                               "login": int(os.environ["TL_LOGIN"]),
                               "password": os.environ["TL_PASSWORD"],
                               "server": os.environ["TL_SERVER"],
-                              "symbol_canonical": TRADELOCKER_UNIVERSE[0]}}
+                              "symbol_canonical": FX_UNIVERSE[0]}}
             return BrokerFactory.create_broker(cfg, logger), "REAL"
         except Exception as e:  # noqa: BLE001
             _log(logger, "warning", f"real broker connect failed ({e}); using simulated")
-    # Simulated demo broker
     def _demo_submit(req):
         return MockTradeResult(10009, True, float(req.get("volume", 0.0)))
-    return MockBroker(submit_fn=_demo_submit, symbol=TRADELOCKER_UNIVERSE[0]), "SIMULATED"
+    return MockBroker(submit_fn=_demo_submit, symbol=FX_UNIVERSE[0]), "SIMULATED"
 
 
-def fetch_history(logger):
-    """Fetch history for the TradeLocker CFD universe. CFD tickers (XAUUSD, US30...)
-    are broker-specific and NOT served by yfinance. So:
-      - Try the real CFD symbols first (works when MT5/real feed is wired).
-      - Fall back to a PROXY multi-asset universe (GLD gold, SPY/QQQ equities,
-        TLT/IEF bonds, DBC commodities) that yfinance DOES serve. This keeps the bot
-        producing a REAL (proven) signal in simulated mode. It is clearly labeled
-        'PROXY' so nobody mistakes it for the live CFD feed. Under real MT5, the CFD
-        symbols resolve and the proxy is never used."""
-    feed = MarketDataFeed()
-    prices = {}
-    for s in TRADELOCKER_UNIVERSE:
-        for cand in (f"{s}=X", s):
+def tradeable_symbols(broker, logger):
+    """Return FX_UNIVERSE entries the connected MT5 account can actually trade.
+    MT5 SYMBOL_TRADE_MODE: 0=disabled,1=long,2=short,3=close-only,4=FULL.
+    So tradeable means trade_mode != 0 (disabled). We also ensure the symbol is
+    selected so its history/quotes are available."""
+    import MetaTrader5 as mt5
+    out = []
+    for s in FX_UNIVERSE:
+        info = mt5.symbol_info(s)
+        if info is not None and getattr(info, "trade_mode", 0) != 0:
             try:
-                prices[s] = feed.get(cand, source="yfinance", interval="1d", years=5)
-                break
-            except Exception:  # noqa: BLE001
-                continue
-        if s not in prices:
-            _log(logger, "warning", f"no history for {s}; skipping")
-    if prices:
-        _log(logger, "info", "signal universe: REAL CFD symbols resolved")
-        return prices
-    # Proxy fallback (yfinance-served, proven multi-asset)
-    _log(logger, "warning", "CFD symbols unavailable via yfinance -> using PROXY multi-asset "
-                           "universe (GLD/SPY/QQQ/TLT/IEF/DBC). Replace with live MT5 CFD feed "
-                           "when TL_* creds + MetaTrader5 are connected.")
-    PROXY = ["GLD", "SPY", "QQQ", "TLT", "IEF", "DBC"]
-    proxy_prices = {}
-    for s in PROXY:
+                mt5.symbol_select(s, True)
+            except Exception:
+                pass
+            out.append(s)
+    if out:
+        _log(logger, "info", f"tradeable FX universe resolved: {out}")
+    else:
+        _log(logger, "warning", "no tradeable FX symbols found on this demo account")
+    return out
+
+
+def fetch_history(logger, symbols, broker_kind="SIMULATED"):
+    """Fetch ~5y daily close history. On REAL MT5 we pull directly from the
+    broker's market data (FX pairs live there); yfinance does not serve FX."""
+    import MetaTrader5 as mt5
+    prices = {}
+    if broker_kind == "REAL":
+        for s in symbols:
+            try:
+                rates = mt5.copy_rates_from_pos(s, mt5.TIMEFRAME_D1, 0, 5 * 252)
+                if rates is not None and len(rates):
+                    df = pd.DataFrame(rates)
+                    df["close"] = df["close"].astype(float)
+                    df.index = pd.to_datetime(df["time"], unit="s")
+                    prices[s] = df[["close"]]
+                else:
+                    _log(logger, "warning", f"no MT5 history for {s}; skipping")
+            except Exception as e:
+                _log(logger, "warning", f"MT5 history failed for {s}: {e}")
+        if prices:
+            _log(logger, "info", f"signal history: REAL MT5 feed ({len(prices)} symbols)")
+            return prices
+    # Simulated / offline fallback: yfinance multi-asset proxy
+    feed = MarketDataFeed()
+    for s in symbols:
         try:
-            proxy_prices[s] = feed.get(s, source="yfinance", interval="1d", years=5)
-        except Exception as e:  # noqa: BLE001
-            _log(logger, "warning", f"proxy skip {s}: {e}")
-    return proxy_prices
+            prices[s] = feed.get(s, source="yfinance", interval="1d", years=5)
+        except Exception:
+            _log(logger, "warning", f"no history for {s}; skipping")
+    return prices
 
 
 def rebalance(logger, broker, broker_kind, st, circuit):
     now = datetime.now(timezone.utc)
     month = now.strftime("%Y-%m")
     if st.get("last_rebalance_month") == month:
-        return  # already rebalanced this month
+        return
     if st.get("halted"):
         _log(logger, "info", "bot halted (loss lock tripped); skipping rebalance")
         return
 
-    prices = fetch_history(logger)
+    symbols = tradeable_symbols(broker, logger)
+    if not symbols:
+        _log(logger, "error", "no tradeable symbols; cannot rebalance")
+        return
+    prices = fetch_history(logger, symbols, broker_kind)
     if not prices:
         _log(logger, "error", "no price history fetched; cannot rebalance")
         return
 
-    # Sleeve 2 TSMOM signal on the CFD universe
-    trades, _, m = run_tsmom(prices, initial_equity=10000.0, lookback=REBALANCE_LOOKBACK,
+    trades, _, m = run_tsmom(prices, initial_equity=100000.0, lookback=REBALANCE_LOOKBACK,
                              allow_short=True)
-    # current target side from trailing momentum (same as demo driver)
-    import pandas as pd
     panel = pd.DataFrame({s: df["close"].astype(float).resample("ME").last()
                           for s, df in prices.items()}).dropna(how="any")
     if len(panel) < REBALANCE_LOOKBACK + 2:
@@ -149,12 +190,10 @@ def rebalance(logger, broker, broker_kind, st, circuit):
     _log(logger, "info", "rebalance signal", month=month, target=target,
          sleeve2_pf=round(float(m["profit_factor"]), 2))
 
-    confirm = os.environ.get("DEMO_CONFIRM", "")
-    fill_allowed = os.environ.get("EDGELAB_DEMO_FILL", "") == "1"
-    if confirm != DEMO_MARKER or not fill_allowed:
-        _log(logger, "info", "SUBMISSION HALTED (need '#D#' marker + EDGELAB_DEMO_FILL=1). "
+    if not DEMO_AUTH:
+        _log(logger, "info", "SUBMISSION HALTED (EDGELAB_DEMO_AUTH=1 required). "
                             "Signal computed; no orders placed.",
-             confirm=confirm, fill_flag=fill_allowed)
+             demo_auth=DEMO_AUTH)
         st["last_rebalance_month"] = month
         save_state(st)
         return
@@ -164,7 +203,7 @@ def rebalance(logger, broker, broker_kind, st, circuit):
         return
 
     orders = [{"symbol": s, "action": "DEAL", "type": side, "volume": 0.01,
-               "price": 0.0, "comment": "EdgeLab Sleeve2 DEMO #D#"}
+               "price": 0.0, "comment": "EdgeLab Sleeve2 DEMO"}
               for s, side in target.items() if side in ("LONG", "SHORT")]
     for o in orders:
         res = broker.submit(o)
@@ -177,41 +216,67 @@ def rebalance(logger, broker, broker_kind, st, circuit):
     save_state(st)
 
 
-def daily_risk_check(logger, broker, broker_kind, st):
+def update_perf(logger, broker, broker_kind, st):
+    """Read REAL account equity + deal history; compute daily P&L, win rate."""
+    p = load_perf()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    if st.get("last_date") != today:
-        # new day: reset daily-start equity baseline
-        st["daily_start_equity"] = st.get("peak_equity", 10000.0)
-        st["last_date"] = today
-        save_state(st)
-    # Simulated equity tracker: peak_equity from state; trip lock if daily loss > 4%
-    eq = st.get("peak_equity", 10000.0)
+    eq = st.get("peak_equity", 100000.0)
+    bal = None
+    if broker_kind == "REAL" and hasattr(broker, "get_account_info"):
+        info = broker.get_account_info()
+        if info:
+            eq = info.get("equity", eq)
+            bal = info.get("balance")
+            st["peak_equity"] = eq
+            st["daily_start_equity"] = st.get("daily_start_equity", eq)
+    # daily P&L vs start-of-day baseline
     daily_start = st.get("daily_start_equity", eq)
+    daily_pnl = round(eq - daily_start, 2)
+    # trip 4% daily loss lock
     if daily_start > 0 and (daily_start - eq) / daily_start > DAILY_LOSS_LOCK_PCT:
         if not st.get("halted"):
             st["halted"] = True
             save_state(st)
             _log(logger, "warning", f"DAILY 4% LOSS LOCK TRIPPED -> bot halted. "
                                     f"equity={eq:.2f} daily_start={daily_start:.2f}")
-    _log(logger, "info", "heartbeat", kind=broker_kind, date=today,
-         equity=round(eq, 2), halted=st.get("halted", False))
+    # realized P&L + win rate from deal history (REAL only)
+    if broker_kind == "REAL" and hasattr(broker, "get_deals_history"):
+        deals = broker.get_deals_history(days=30)
+        wins = sum(1 for d in deals if d["profit"] > 0)
+        losses = sum(1 for d in deals if d["profit"] < 0)
+        realized = round(sum(d["profit"] for d in deals), 2)
+        p["wins"], p["losses"], p["trades"] = wins, losses, (wins + losses)
+        p["total_realized"] = realized
+    # daily series (keep last 30)
+    p["daily_pnl"] = p.get("daily_pnl", [])
+    if not p["daily_pnl"] or p["daily_pnl"][-1]["date"] != today:
+        p["daily_pnl"].append({"date": today, "pnl": daily_pnl, "equity": round(eq, 2)})
+    else:
+        p["daily_pnl"][-1] = {"date": today, "pnl": daily_pnl, "equity": round(eq, 2)}
+    p["daily_pnl"] = p["daily_pnl"][-30:]
+    p["last_equity"] = round(eq, 2)
+    p["balance"] = bal
+    save_perf(p)
+    save_state(st)
+    _log(logger, "info", "heartbeat", kind=broker_kind, date=today, equity=round(eq, 2),
+         daily_pnl=daily_pnl, halted=st.get("halted", False),
+         realized=p.get("total_realized"), win=p.get("wins"), loss=p.get("losses"))
 
 
 def main():
     logger = TradingLogger("bot_runner", str(LOG_FILE))
-    _log(logger, "info", "=== bot_runner starting (multi-component, TradeLocker DEMO) ===")
+    _log(logger, "info", "=== bot_runner starting (multi-component, MetaTrader5 DEMO) ===")
+    _log(logger, "info", f"DEMO_AUTH enabled: {DEMO_AUTH}")
     broker, broker_kind = build_broker(logger)
     _log(logger, "info", f"broker: {broker_kind} "
-                         f"({'REAL TradeLocker' if broker_kind=='REAL' else 'SIMULATED MockBroker — no MT5/creds'})")
+                         f"({'REAL MT5' if broker_kind=='REAL' else 'SIMULATED MockBroker — no MT5/creds'})")
     st = load_state()
     circuit = CircuitBreaker(CircuitConfig(failure_threshold=5, cooldown_ms=30000), logger)
 
-    # schedule: rebalance check every 30 min (acts monthly), daily risk check at 22:05 UTC
     schedule.every(30).minutes.do(lambda: rebalance(logger, broker, broker_kind, st, circuit))
-    schedule.every().day.at("22:05").do(lambda: daily_risk_check(logger, broker, broker_kind, st))
-    # immediate first pass
+    schedule.every(5).minutes.do(lambda: update_perf(logger, broker, broker_kind, st))
     rebalance(logger, broker, broker_kind, st, circuit)
-    daily_risk_check(logger, broker, broker_kind, st)
+    update_perf(logger, broker, broker_kind, st)
 
     _log(logger, "info", "loop alive — waiting for scheduled jobs (ctrl-c to stop)")
     while True:
