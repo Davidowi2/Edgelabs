@@ -16,6 +16,7 @@ from edgelab.execution.mock_broker import MockBroker
 from edgelab.execution.tradelocker_broker import (
     TradeLockerBroker, MT5NotAvailableError, ConnectionError as BrokerConnectionError,
 )
+from edgelab.execution.tradelocker_rest import TradeLockerRestBroker
 
 
 class BrokerFactory:
@@ -45,6 +46,27 @@ class BrokerFactory:
             except Exception as exc:  # noqa: BLE001 - safety net: never raise
                 logger.error(
                     f"broker selected: mode=tradelocker error, "
+                    f"falling back to MockBroker (error={exc})")
+                return MockBroker(cfg)
+
+        if mode == "tradelocker-rest":
+            # Real TradeLocker REST API (no MT5 terminal needed). Connects read-only;
+            # submission still gated by '#D#' + EDGELAB_DEMO_FILL inside the client.
+            try:
+                broker = TradeLockerRestBroker(config, logger)
+                ok = broker.connect()
+                if not ok:
+                    logger.error(
+                        "broker selected: tradelocker-rest connect failed, "
+                        "falling back to MockBroker")
+                    return MockBroker(cfg)
+                logger.info(
+                    f"broker selected: mode={mode} class={type(broker).__name__}",
+                    server=cfg.get("server"))
+                return broker
+            except Exception as exc:  # noqa: BLE001
+                logger.error(
+                    f"broker selected: tradelocker-rest error, "
                     f"falling back to MockBroker (error={exc})")
                 return MockBroker(cfg)
 
